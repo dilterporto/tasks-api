@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  local-db:
+    image: "postgres:latest"
+    environment:
+      - POSTGRES_USER=appuser
+      - POSTGRES_PASSWORD=password123
+      - POSTGRES_DB=localdefaultdb
+    networks:
+      - default
+    ports:
+      - "5432:5432"
+  local-db-migrations:
+    image: flyway/flyway:latest
+    volumes:
+      - ./db/sql:/flyway/sql
+      - ./db/config:/flyway/conf
+    command: migrate -connectRetries=20
+    depends_on:
+      - local-db
+    networks:
+      - default
+    environment:
+      FLYWAY_EDITION: community
+      FLYWAY_CONFIG_FILES: /flyway/conf/flyway.conf
+      FLYWAY_LOCATIONS: filesystem:/flyway/sql
+networks:
+  default:
+    name: tasks-api
+volumes:
+  localdbdata:
