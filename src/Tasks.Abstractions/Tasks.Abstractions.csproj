@@ -10,7 +10,10 @@
       <PackageReference Include="AutoMapper" />
       <PackageReference Include="CSharpFunctionalExtensions" />
       <PackageReference Include="MediatR" />
-        <PackageReference Include="ReflectionMagic" />
+      <PackageReference Include="Microsoft.Extensions.Logging" />
+      <PackageReference Include="ReflectionMagic" />
+      <PackageReference Include="Serilog" />
+      <PackageReference Include="Serilog.Sinks.Console" />
     </ItemGroup>
 
 </Project>
