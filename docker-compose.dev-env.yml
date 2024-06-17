@@ -25,6 +25,14 @@ services:
       FLYWAY_EDITION: community
       FLYWAY_CONFIG_FILES: /flyway/conf/flyway.conf
       FLYWAY_LOCATIONS: filesystem:/flyway/sql
+  seq-logging:
+    image: datalust/seq:latest
+    ports:
+      - "5341:80"
+    environment:
+      - ACCEPT_EULA=Y
+    networks:
+      - default
 networks:
   default:
     name: tasks-api
