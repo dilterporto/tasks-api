@@ -16,12 +16,14 @@ public class EventCommitters : IEventCommiters
     IEventCommitter<TaskCreatedEvent> taskCreatedEventCommitter,
     IEventCommitter<TaskChangedEvent> taskChangedEventCommitter,
     IEventCommitter<TaskDeletedEvent> taskDeletedEventCommitter,
+    IEventCommitter<TaskStartedEvent> taskStartedEventCommitter,
     ILogger<EventCommitters> logger)
   {
     _logger = logger;
     _eventCommiters.Add(typeof(TaskCreatedEvent), RunAsync(taskCreatedEventCommitter));
     _eventCommiters.Add(typeof(TaskChangedEvent), RunAsync(taskChangedEventCommitter));
     _eventCommiters.Add(typeof(TaskDeletedEvent), RunAsync(taskDeletedEventCommitter));
+    _eventCommiters.Add(typeof(TaskStartedEvent), RunAsync(taskStartedEventCommitter));
   }
   
   private static Func<IDomainEvent, Task> RunAsync<TEvent>(IEventCommitter<TEvent> accountEventCommiter)

@@ -2,7 +2,7 @@
 
 namespace Tasks.Domain.Aggregates.Tasks;
 
-public partial class TaskAggregate : AggregateRoot
+public partial class TaskAggregate : AggregateRoot, ITaskAggregate
 {
   public ITaskAggregateState State { get; set; } = new TaskAggregateState();
 
@@ -13,19 +13,19 @@ public partial class TaskAggregate : AggregateRoot
   public TaskAggregate(ITaskAggregateState state) : base(Guid.NewGuid()) =>
     ApplyChange(new TaskCreatedEvent
     {
-      UserId = state.UserId,
       At = state.At,
+      DueAt = state.DueAt,
       Subject = state.Subject,
       Description = state.Description
     });
 
   public void Apply(TaskCreatedEvent @event)
   {
-    State.Id = @event.AggregateId;
-    State.UserId = @event.UserId;
-    State.At = @event.At;
-    State.Subject = @event.Subject;
-    State.Description = @event.Description;
-    State.Status = TaskStatus.Created;
+    this.State.Id = @event.AggregateId;
+    this.State.At = @event.At;
+    this.State.Subject = @event.Subject;
+    this.State.Description = @event.Description;
+    this.State.DueAt = @event.DueAt;
+    this.State.Status = TaskStatus.Created;
   }
 }

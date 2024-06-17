@@ -12,11 +12,11 @@ public class TaskCreatedEventCommitter(ProjectionsDbContext projectionsDbContext
     var taskProjection = new TaskProjection
     {
       Id = @event.AggregateId,
-      UserId = @event.UserId,
       Description = @event.Description,
       Subject = @event.Subject,
       Status = $"{TaskStatus.Created}",
-      At = @event.At
+      At = @event.At,
+      DueAt = @event.DueAt,
     };
     
     projectionsDbContext.Add(taskProjection);

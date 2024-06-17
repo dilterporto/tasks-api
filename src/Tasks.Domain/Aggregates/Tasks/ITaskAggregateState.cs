@@ -11,6 +11,7 @@ public interface ITaskAggregateState
   public string Description { get; set; }
   public TaskStatus Status { get; set; }
   public bool Deleted { get; set; }
+  public DateTime DueAt { get; set; }
 }
 
 public class TaskAggregateState : ITaskAggregateState
@@ -24,4 +25,5 @@ public class TaskAggregateState : ITaskAggregateState
   public string Description { get; set; } = string.Empty;
   public TaskStatus Status { get; set; }
   public bool Deleted { get; set; }
+  public DateTime DueAt { get; set; }
 }

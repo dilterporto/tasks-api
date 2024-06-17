@@ -14,7 +14,11 @@ public class CreateTaskCommandHandler(ITaskRepository taskRepository, IMapper ma
   {
     try
     {
-      TaskAggregate newTask = new TaskAggregate(mapper.Map<TaskAggregateState>(command));
+      var state = mapper.Map<TaskAggregateState>(command);
+      TaskAggregate newTask = new TaskAggregate(state);
+      
+      newTask.Start(command.UserId);
+      
       await taskRepository.SaveAsync(newTask);
       return mapper.Map<TaskResponse>(newTask.State);
     }

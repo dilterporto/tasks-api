@@ -42,6 +42,24 @@ public class TaskAggregateTests
   }
   
   [Fact]
+  public void Start_WithValidUserAssigned_ShouldStartTask()
+  {
+    // Arrange
+    var task = new TaskAggregate();
+    var userAssigned = new Fixture().Create<Guid>();
+
+    // Act
+    task.Start(userAssigned);
+
+    // Assert
+    Assert.Single(task.UncommittedEvents);
+    Assert.IsType<TaskStartedEvent>(task.UncommittedEvents.First());
+    Assert.Equal(userAssigned, task.State.UserId);
+    Assert.NotNull(task.State.StartedAt);
+    Assert.Equal(TaskStatus.Started, task.State.Status);
+  }
+  
+  [Fact]
   public void Apply_WithTaskCreatedEvent_ShouldSetState()
   {
     // Arrange
@@ -53,7 +71,6 @@ public class TaskAggregateTests
 
     // Assert
     Assert.Equal(@event.AggregateId, task.State.Id);
-    Assert.Equal(@event.UserId, task.State.UserId);
     Assert.Equal(@event.At, task.State.At);
     Assert.Equal(@event.Subject, task.State.Subject);
     Assert.Equal(@event.Description, task.State.Description);
@@ -74,6 +91,22 @@ public class TaskAggregateTests
     Assert.Equal(@event.Subject, task.State.Subject);
     Assert.Equal(@event.Description, task.State.Description);
     Assert.Equal(@event.UserId, task.State.UserId);
+  }
+  
+  [Fact]
+  public void Apply_WithTaskStartedEvent_ShouldSetState()
+  {
+    // Arrange
+    var task = new TaskAggregate();
+    var @event = new Fixture().Create<TaskStartedEvent>();
+
+    // Act
+    task.Apply(@event);
+
+    // Assert
+    Assert.Equal(@event.AssignedTo, task.State.UserId);
+    Assert.Equal(@event.StartedAt, task.State.StartedAt);
+    Assert.Equal(TaskStatus.Started, task.State.Status);
   }
   
   [Fact]

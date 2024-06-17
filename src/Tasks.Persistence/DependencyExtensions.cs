@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Tasks.Abstractions;
 using Tasks.Abstractions.EventSourcing;
 using Tasks.Domain.Aggregates.Tasks;
 using Tasks.Persistence.Events;
@@ -27,6 +26,7 @@ public static class DependencyExtensions
     services.AddScoped<IEventCommitter<TaskCreatedEvent>, TaskCreatedEventCommitter>();
     services.AddScoped<IEventCommitter<TaskChangedEvent>, TaskChangedEventCommitter>();
     services.AddScoped<IEventCommitter<TaskDeletedEvent>, TaskDeletedEventCommitter>();
+    services.AddScoped<IEventCommitter<TaskStartedEvent>, TaskStartedEventCommitter>();
     
     return services;
   }
