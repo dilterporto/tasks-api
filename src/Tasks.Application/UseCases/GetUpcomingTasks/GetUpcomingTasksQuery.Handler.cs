@@ -1,23 +1,20 @@
 using AutoMapper;
 using CSharpFunctionalExtensions;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
+using Tasks.Abstractions.EventSourcing;
 using Tasks.Application.Contracts;
 using Tasks.Persistence.Projections;
 
 namespace Tasks.Application.UseCases.GetUpcomingTasks;
 
-public class GetUpcomingTasksQueryHandler(ProjectionsDbContext projectionsDbContext, IMapper mapper) 
+public class GetUpcomingTasksQueryHandler(IProjectionsReader<TaskProjection> projectionsReader, IMapper mapper) 
   : IRequestHandler<GetUpcomingTasksQuery, Result<UpcomingTasksResponse>>
 {
   public async Task<Result<UpcomingTasksResponse>> Handle(GetUpcomingTasksQuery request, CancellationToken cancellationToken)
   {
-    var upcomingTasks = (await projectionsDbContext
-      .Set<TaskProjection>()
-      .TagWith("GetUpcomingTasksQuery - UpcomingGroupedTasksProjection")
+    var upcomingTasks = (await projectionsReader.GetAllAsync())
       .Where(x => x.DueAt.Date >= DateTime.UtcNow.Date)
-      .AsNoTracking()
-      .ToListAsync(cancellationToken: cancellationToken))
+      .ToList()
       .Select(mapper.Map<TaskResponseWithDue>);
 
     var upcomingGroupedTasks = upcomingTasks

@@ -4,7 +4,8 @@ using Tasks.Abstractions.EventSourcing;
 
 namespace Tasks.Persistence.Projections;
 
-public class ProjectionsReader<TProjection>(ProjectionsDbContext projectionsDbContext) : IProjectionsReader<TProjection> where TProjection : Projection
+public class ProjectionsReader<TProjection>(ProjectionsDbContext projectionsDbContext)
+  : IProjectionsReader<TProjection> where TProjection : Projection
 {
   public async Task<Maybe<TProjection>> GetByIdAsync(Guid id)
   {
@@ -17,8 +18,9 @@ public class ProjectionsReader<TProjection>(ProjectionsDbContext projectionsDbCo
     return projection == null ? Maybe<TProjection>.None : Maybe<TProjection>.From(projection);
   }
 
-  public Task<IEnumerable<TProjection>> GetAllAsync()
-  {
-    throw new NotImplementedException();
-  }
+  public Task<IQueryable<TProjection>> GetAllAsync()
+    => Task.FromResult(projectionsDbContext.Set<TProjection>()
+      .TagWith($"GetAllAsync - {typeof(TProjection).Name}")
+      .AsNoTracking()
+      .AsQueryable());
 }

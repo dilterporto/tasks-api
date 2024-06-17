@@ -21,7 +21,8 @@ public static class DependencyExtensions
       o.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
     
     services.AddScoped<ITaskRepository, TaskRepository>();
-
+    services.AddScoped<IProjectionsReader<TaskProjection>, ProjectionsReader<TaskProjection>>();
+    
     services.AddScoped<IEventCommiters, EventCommitters>();
     services.AddScoped<IEventCommitter<TaskCreatedEvent>, TaskCreatedEventCommitter>();
     services.AddScoped<IEventCommitter<TaskChangedEvent>, TaskChangedEventCommitter>();
