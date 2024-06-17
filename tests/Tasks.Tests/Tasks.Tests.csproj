@@ -9,17 +9,20 @@
         <IsTestProject>true</IsTestProject>
     </PropertyGroup>
 
+    <ItemGroup>       
+      <PackageReference Include="AutoFixture" />       
+      <PackageReference Include="Microsoft.NET.Test.Sdk" />       
+      <PackageReference Include="xunit" />
+      <PackageReference Include="xunit.runner.visualstudio">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      </PackageReference>
+    </ItemGroup>
+
     <ItemGroup>
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.6.0"/>
-        <PackageReference Include="xunit" Version="2.4.2"/>
-        <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5">
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-            <PrivateAssets>all</PrivateAssets>
-        </PackageReference>
-        <PackageReference Include="coverlet.collector" Version="6.0.0">
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-            <PrivateAssets>all</PrivateAssets>
-        </PackageReference>
+      <ProjectReference Include="..\..\src\Tasks.Application\Tasks.Application.csproj" />
+      <ProjectReference Include="..\..\src\Tasks.Domain\Tasks.Domain.csproj" />
+      <ProjectReference Include="..\..\src\Tasks.Persistence\Tasks.Persistence.csproj" />
     </ItemGroup>
 
 </Project>
