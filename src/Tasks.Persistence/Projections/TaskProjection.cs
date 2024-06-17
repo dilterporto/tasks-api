@@ -2,9 +2,8 @@ using Tasks.Abstractions.EventSourcing;
 
 namespace Tasks.Persistence.Projections;
 
-public class TaskProjection : IProjection
+public class TaskProjection : Projection
 {
-  public Guid Id { get; set; }
   public Guid UserId { get; set; }
   public DateTime At { get; set; }
   public DateTime? StartedAt { get; set; }

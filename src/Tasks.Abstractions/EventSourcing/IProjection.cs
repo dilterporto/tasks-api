@@ -1,6 +1,6 @@
 namespace Tasks.Abstractions.EventSourcing;
 
-public class IProjection
+public abstract class Projection
 {
-  
+  public Guid Id { get; set; }
 }
