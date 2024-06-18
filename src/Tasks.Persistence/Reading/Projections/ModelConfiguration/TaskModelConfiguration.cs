@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Tasks.Persistence.Projections.ModelConfiguration;
+namespace Tasks.Persistence.Reading.Projections.ModelConfiguration;
 
 public class TaskModelConfiguration : IEntityTypeConfiguration<TaskProjection>
 {

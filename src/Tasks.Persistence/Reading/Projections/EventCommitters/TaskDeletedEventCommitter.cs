@@ -2,7 +2,7 @@ using Microsoft.Extensions.Logging;
 using Tasks.Abstractions.EventSourcing;
 using Tasks.Domain.Aggregates.Tasks;
 
-namespace Tasks.Persistence.Projections.EventCommitters;
+namespace Tasks.Persistence.Reading.Projections.EventCommitters;
 
 public class TaskDeletedEventCommitter(
   ProjectionsDbContext projectionsDbContext, 

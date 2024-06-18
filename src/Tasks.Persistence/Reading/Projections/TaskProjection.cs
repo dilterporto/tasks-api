@@ -1,6 +1,6 @@
 using Tasks.Abstractions.EventSourcing;
 
-namespace Tasks.Persistence.Projections;
+namespace Tasks.Persistence.Reading.Projections;
 
 public class TaskProjection : Projection
 {

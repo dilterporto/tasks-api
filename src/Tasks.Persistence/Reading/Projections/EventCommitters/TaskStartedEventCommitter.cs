@@ -3,7 +3,7 @@ using Tasks.Abstractions.EventSourcing;
 using Tasks.Domain.Aggregates.Tasks;
 using TaskStatus = Tasks.Domain.Aggregates.Tasks.TaskStatus;
 
-namespace Tasks.Persistence.Projections.EventCommitters;
+namespace Tasks.Persistence.Reading.Projections.EventCommitters;
 
 public class TaskStartedEventCommitter(
   ProjectionsDbContext projectionsDbContext,

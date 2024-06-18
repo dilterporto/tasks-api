@@ -3,7 +3,7 @@ using CSharpFunctionalExtensions;
 using MediatR;
 using Tasks.Abstractions.EventSourcing;
 using Tasks.Application.Contracts;
-using Tasks.Persistence.Projections;
+using Tasks.Persistence.Reading.Projections;
 
 namespace Tasks.Application.UseCases.GetTaskById;
 

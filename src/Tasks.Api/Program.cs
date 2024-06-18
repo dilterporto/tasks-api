@@ -4,6 +4,7 @@ using FastEndpoints.Swagger;
 using MediatR;
 using Serilog;
 using Tasks.Abstractions.Logging;
+using Tasks.Application.Behaviors;
 using Tasks.Application.UseCases.CreateTask;
 using Tasks.DependencyInjection;
 using Tasks.Persistence;
@@ -34,6 +35,7 @@ builder.Services
 
 builder.Services.AddScoped(typeof(IPipelineBehavior<,>), typeof(UnitOfWorkBehavior<,>));
 builder.Services.AddScoped(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
+builder.Services.AddScoped(typeof(IPipelineBehavior<,>), typeof(CacheValidationBehavior<,>));
 builder.Services.AddMediatR(Assembly.GetExecutingAssembly(), typeof(CreateTaskCommand).Assembly);
 builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly(), typeof(CreateTaskCommand).Assembly);
 

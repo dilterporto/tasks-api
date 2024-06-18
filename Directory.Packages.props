@@ -19,6 +19,7 @@
     <PackageVersion Include="Serilog.AspNetCore" Version="8.0.2-dev-00338" />
     <PackageVersion Include="Serilog.Sinks.Console" Version="6.0.0" />
     <PackageVersion Include="Serilog.Sinks.Seq" Version="8.0.0" />
+    <PackageVersion Include="StackExchange.Redis" Version="2.7.33" />
     <PackageVersion Include="Swashbuckle.AspNetCore" Version="6.4.0" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="8.0.6" />
     <PackageVersion Include="MediatR" Version="9.0.0" />

@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using Tasks.Persistence.Projections.ModelConfiguration;
+using Tasks.Persistence.Reading.Projections.ModelConfiguration;
 
-namespace Tasks.Persistence.Projections;
+namespace Tasks.Persistence.Reading.Projections;
 
 public class ProjectionsDbContext : DbContext
 {

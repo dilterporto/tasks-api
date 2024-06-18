@@ -1,25 +1,16 @@
 ﻿using AutoMapper;
 using Moq;
+using Tasks.Abstractions.Caching;
 using Tasks.Abstractions.EventSourcing;
 using Tasks.Application.Contracts;
 using Tasks.Application.UseCases.GetUpcomingTasks;
-using Tasks.Persistence.Projections;
+using Tasks.Persistence.Reading.Projections;
 using Xunit;
 
 namespace Tasks.Tests.Application.UseCases;
 
 public class GetUpcomingTasksQueryTests
 {
-  private readonly GetUpcomingTasksQueryHandler _getUpcomingTasksQueryHandler;
-
-  public GetUpcomingTasksQueryTests()
-  {
-    var projectionsReader = new Mock<IProjectionsReader<TaskProjection>>();
-    var mapper = new Mock<IMapper>();
-
-    _getUpcomingTasksQueryHandler = new GetUpcomingTasksQueryHandler(projectionsReader.Object, mapper.Object);
-  }
-  
   [Fact]
   public async Task Handle_WhenNoUpcomingTasks_ReturnsEmptyResponse()
   {
@@ -34,7 +25,8 @@ public class GetUpcomingTasksQueryTests
     
     var mapper = new Mock<IMapper>();
     
-    var handler = new GetUpcomingTasksQueryHandler(projectionsReader.Object, mapper.Object);
+    var cache = new Mock<ICacheManager>();
+    var handler = new GetUpcomingTasksQueryHandler(projectionsReader.Object, mapper.Object, cache.Object);
     
     // Act
     var result = await handler.Handle(query, CancellationToken.None);
@@ -80,7 +72,8 @@ public class GetUpcomingTasksQueryTests
       });
     }
     
-    var handler = new GetUpcomingTasksQueryHandler(projectionsReader.Object, mapper.Object);
+    var cache = new Mock<ICacheManager>();
+    var handler = new GetUpcomingTasksQueryHandler(projectionsReader.Object, mapper.Object, cache.Object);
     
     // Act
     var result = await handler.Handle(query, CancellationToken.None);

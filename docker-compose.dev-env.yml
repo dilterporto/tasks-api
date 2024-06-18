@@ -33,6 +33,13 @@ services:
       - ACCEPT_EULA=Y
     networks:
       - default
+  redis-stack:
+    image: redis/redis-stack:latest
+    ports:
+      - "6379:6379"
+      - "8001:8001"
+    networks:
+      - default
 networks:
   default:
     name: tasks-api

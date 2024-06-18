@@ -5,7 +5,7 @@ using Moq;
 using Tasks.Abstractions.EventSourcing;
 using Tasks.Application.Contracts;
 using Tasks.Application.UseCases.GetTaskById;
-using Tasks.Persistence.Projections;
+using Tasks.Persistence.Reading.Projections;
 using Xunit;
 
 namespace Tasks.Tests.Application.UseCases;

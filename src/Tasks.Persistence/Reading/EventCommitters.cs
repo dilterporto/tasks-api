@@ -3,7 +3,7 @@ using Tasks.Abstractions;
 using Tasks.Abstractions.EventSourcing;
 using Tasks.Domain.Aggregates.Tasks;
 
-namespace Tasks.Persistence;
+namespace Tasks.Persistence.Reading;
 
 public class EventCommitters : IEventCommiters
 {
