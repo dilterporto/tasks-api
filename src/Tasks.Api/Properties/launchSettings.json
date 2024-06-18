@@ -13,9 +13,9 @@
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchUrl": "swagger",
-      "applicationUrl": "http://localhost:5185",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
+        "ASPNETCORE_URLS": "http://[::]:5186",
         "ConnectionStrings__DefaultConnection": "Host=localhost;Port=5432;Database=localdefaultdb;Username=appuser;Password=password123",
         "Seq__ServerUrl": "http://localhost:5341",
         "Redis__Server": "localhost:6379"
