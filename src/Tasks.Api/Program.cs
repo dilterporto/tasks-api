@@ -33,9 +33,9 @@ builder.Services
     };
   });
 
-builder.Services.AddScoped(typeof(IPipelineBehavior<,>), typeof(UnitOfWorkBehavior<,>));
+builder.Services.AddScoped(typeof(IPipelineBehavior<,>), typeof(UnitOfWorkPipelineBehavior<,>));
 builder.Services.AddScoped(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
-builder.Services.AddScoped(typeof(IPipelineBehavior<,>), typeof(CacheValidationBehavior<,>));
+builder.Services.AddScoped(typeof(IPipelineBehavior<,>), typeof(CacheValidationPipelineBehavior<,>));
 builder.Services.AddMediatR(Assembly.GetExecutingAssembly(), typeof(CreateTaskCommand).Assembly);
 builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly(), typeof(CreateTaskCommand).Assembly);
 
