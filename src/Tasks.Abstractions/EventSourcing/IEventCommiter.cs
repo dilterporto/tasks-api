@@ -1,3 +1,5 @@
+using Tasks.Abstractions.Domain;
+
 namespace Tasks.Abstractions.EventSourcing;
 
 public interface IEventCommitter<in TEvent> where TEvent : IDomainEvent

@@ -1,4 +1,4 @@
-﻿namespace Tasks.Abstractions;
+﻿namespace Tasks.Abstractions.Domain;
 
 public interface IEntity : IEntity<Guid>
 {

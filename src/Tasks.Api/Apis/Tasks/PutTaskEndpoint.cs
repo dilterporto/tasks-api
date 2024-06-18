@@ -3,7 +3,6 @@ using MediatR;
 using Tasks.Api.Apis.Tasks.Messages;
 using Tasks.Application.Contracts;
 using Tasks.Application.UseCases.ChangeTask;
-using IMapper = AutoMapper.IMapper;
 
 namespace Tasks.Api.Apis.Tasks;
 

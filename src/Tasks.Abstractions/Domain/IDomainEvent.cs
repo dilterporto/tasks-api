@@ -1,6 +1,6 @@
 ﻿using MediatR;
 
-namespace Tasks.Abstractions;
+namespace Tasks.Abstractions.Domain;
 
 public interface IDomainEvent : INotification
 {

@@ -1,4 +1,4 @@
-﻿namespace Tasks.Abstractions;
+﻿namespace Tasks.Abstractions.Domain;
 
 public abstract class DomainEvent : IDomainEvent
 {

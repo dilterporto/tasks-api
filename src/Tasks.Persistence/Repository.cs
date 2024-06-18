@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using Tasks.Abstractions;
+using Tasks.Abstractions.Domain;
 using Tasks.Abstractions.EventSourcing;
 using Tasks.Persistence.Events;
 

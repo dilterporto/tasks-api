@@ -1,6 +1,6 @@
 ﻿using ReflectionMagic;
 
-namespace Tasks.Abstractions;
+namespace Tasks.Abstractions.Domain;
 
 public class AggregateRoot : IAggregateRoot
 {

@@ -1,4 +1,4 @@
-using Tasks.Abstractions;
+using Tasks.Abstractions.Domain;
 
 namespace Tasks.Domain.Aggregates.Tasks;
 

@@ -1,5 +1,5 @@
 using Microsoft.Extensions.Logging;
-using Tasks.Abstractions;
+using Tasks.Abstractions.Domain;
 using Tasks.Abstractions.EventSourcing;
 using Tasks.Domain.Aggregates.Tasks;
 
