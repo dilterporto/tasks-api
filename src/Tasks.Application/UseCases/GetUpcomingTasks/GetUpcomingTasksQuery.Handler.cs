@@ -1,6 +1,7 @@
 using AutoMapper;
 using CSharpFunctionalExtensions;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using Tasks.Abstractions.Caching;
 using Tasks.Abstractions.EventSourcing;
 using Tasks.Application.Contracts;
@@ -8,7 +9,7 @@ using Tasks.Persistence.Reading.Projections;
 
 namespace Tasks.Application.UseCases.GetUpcomingTasks;
 
-public class GetUpcomingTasksQueryHandler(IProjectionsReader<TaskProjection> projectionsReader, IMapper mapper, ICacheManager cacheManager) 
+public class GetUpcomingTasksQueryHandler(IProjectionsReader<TaskProjection> projectionsReader, IMapper mapper, ICacheManager cacheManager, ILogger<GetUpcomingTasksQueryHandler> logger) 
   : IRequestHandler<GetUpcomingTasksQuery, Result<UpcomingTasksResponse>>
 {
   public async Task<Result<UpcomingTasksResponse>> Handle(GetUpcomingTasksQuery request, CancellationToken cancellationToken)
@@ -23,9 +24,12 @@ public class GetUpcomingTasksQueryHandler(IProjectionsReader<TaskProjection> pro
     return GroupByDue(upcomingTasksFromProjections);
   }
 
-  private Task SetInCache(IEnumerable<TaskResponseWithDue> upcomingTasks) =>
-    cacheManager.Set(Constants.UpcomingTasksKey, upcomingTasks);
-  
+  private Task SetInCache(IEnumerable<TaskResponseWithDue> upcomingTasks)
+  {
+    logger.LogInformation("[Application] Setting upcoming tasks in cache.");
+    return cacheManager.Set(Constants.UpcomingTasksKey, upcomingTasks);
+  }
+
   private async Task<List<TaskResponseWithDue>> GetUpcomingTasksFromCache() =>
     (await cacheManager.Get<IEnumerable<TaskResponseWithDue>>(Constants.UpcomingTasksKey)).Value.ToList();
   
