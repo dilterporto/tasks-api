@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.Extensions.Logging;
 using Moq;
 using Tasks.Abstractions.Caching;
 using Tasks.Abstractions.EventSourcing;
@@ -26,7 +27,8 @@ public class GetUpcomingTasksQueryTests
     var mapper = new Mock<IMapper>();
     
     var cache = new Mock<ICacheManager>();
-    var handler = new GetUpcomingTasksQueryHandler(projectionsReader.Object, mapper.Object, cache.Object);
+    var logger = new Mock<ILogger<GetUpcomingTasksQueryHandler>>();
+    var handler = new GetUpcomingTasksQueryHandler(projectionsReader.Object, mapper.Object, cache.Object, logger.Object);
     
     // Act
     var result = await handler.Handle(query, CancellationToken.None);
@@ -73,7 +75,8 @@ public class GetUpcomingTasksQueryTests
     }
     
     var cache = new Mock<ICacheManager>();
-    var handler = new GetUpcomingTasksQueryHandler(projectionsReader.Object, mapper.Object, cache.Object);
+    var logger = new Mock<ILogger<GetUpcomingTasksQueryHandler>>();
+    var handler = new GetUpcomingTasksQueryHandler(projectionsReader.Object, mapper.Object, cache.Object, logger.Object);
     
     // Act
     var result = await handler.Handle(query, CancellationToken.None);
