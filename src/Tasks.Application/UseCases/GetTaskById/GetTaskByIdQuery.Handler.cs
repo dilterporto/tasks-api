@@ -12,9 +12,9 @@ public class GetTaskByIdQueryHandler(IProjectionsReader<TaskProjection> projecti
 {
   public async Task<Result<TaskResponse>> Handle(GetTaskByIdQuery request, CancellationToken cancellationToken)
   {
-    var task = await projectionsReader.GetByIdAsync(request.TaskId);
+    var getTaskByIdResult = await projectionsReader.GetByIdAsync(request.TaskId);
     
-    return task.HasNoValue ?
-      Result.Failure<TaskResponse>("Task not found") : mapper.Map<TaskResponse>(task.Value);
+    return getTaskByIdResult.HasNoValue ?
+      Result.Failure<TaskResponse>("Task not found") : mapper.Map<TaskResponse>(getTaskByIdResult.Value);
   }
 }

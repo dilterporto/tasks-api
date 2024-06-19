@@ -13,19 +13,19 @@ public class ChangeTaskCommandHandler(ITaskRepository taskRepository, IMapper ma
   {
     try
     {
-      var aggregate = await taskRepository.LoadByIdAsync(command.TaskId);
-      if (aggregate.HasNoValue)
+      var loadTaskByIdResult = await taskRepository.LoadByIdAsync(command.TaskId);
+      if (loadTaskByIdResult.HasNoValue)
       {
         return Result.Failure<TaskResponse>($"Task with id {command.TaskId} not found");
       }
 
-      var newState = mapper.Map<TaskAggregateState>(command);
-      var task = aggregate.Value;
-      task.Change(newState);
+      var changedTaskAggregateState = mapper.Map<TaskAggregateState>(command);
+      var taskAggregate = loadTaskByIdResult.Value;
+      taskAggregate.Change(changedTaskAggregateState);
 
-      await taskRepository.SaveAsync(task);
+      await taskRepository.SaveAsync(taskAggregate);
 
-      return Result.Success(mapper.Map<TaskResponse>(task.State));
+      return Result.Success(mapper.Map<TaskResponse>(taskAggregate.State));
     }
     catch (Exception e)
     {
