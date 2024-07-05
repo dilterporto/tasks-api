@@ -23,7 +23,7 @@ public class CreateTasksCommandTests
     
     Mock<ILogger<CreateTaskCommandHandler>> logger = new();
     
-    _createTasksCommandHandler = new CreateTaskCommandHandler(_taskRepository.Object, _mapper.Object, logger.Object);
+    _createTasksCommandHandler = new CreateTaskCommandHandler(_taskRepository.Object, _mapper.Object);
   }
   
   [Fact] public async Task CreateTasksCommand_ShouldCreateWithSuccess()
@@ -33,7 +33,7 @@ public class CreateTasksCommandTests
     
     _taskRepository
       .Setup(x => x.SaveAsync(It.IsAny<TaskAggregate>()))
-      .Returns(Task.CompletedTask);
+      .ReturnsAsync(Result.Success());
 
     _mapper
       .Setup(x => x.Map<TaskAggregateState>(It.IsAny<CreateTaskCommand>()))
@@ -57,7 +57,7 @@ public class CreateTasksCommandTests
     
     _taskRepository
       .Setup(x => x.SaveAsync(It.IsAny<TaskAggregate>()))
-      .Throws(new Exception());
+      .ReturnsAsync(Result.Failure("An error occurred while creating the task."));
     
     _mapper
       .Setup(x => x.Map<TaskAggregateState>(It.IsAny<CreateTaskCommand>()))

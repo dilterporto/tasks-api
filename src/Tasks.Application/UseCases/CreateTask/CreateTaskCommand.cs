@@ -4,5 +4,10 @@ using Tasks.Application.Contracts;
 
 namespace Tasks.Application.UseCases.CreateTask;
 
-public record CreateTaskCommand(Guid UserId, string Subject, string Description, DateTime DueAt)
+public record CreateTaskCommand(
+  Guid UserId, 
+  string Subject, 
+  string Description, 
+  DateTime DueAt, 
+  bool StartsAtCreation = true)
   : ICommand<Result<TaskResponse>>;

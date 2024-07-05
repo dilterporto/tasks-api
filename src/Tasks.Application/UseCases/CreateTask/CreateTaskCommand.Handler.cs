@@ -1,31 +1,21 @@
 ﻿using AutoMapper;
 using CSharpFunctionalExtensions;
-using Microsoft.Extensions.Logging;
 using Tasks.Abstractions.CQRS;
 using Tasks.Application.Contracts;
 using Tasks.Domain.Aggregates.Tasks;
 
 namespace Tasks.Application.UseCases.CreateTask;
 
-public class CreateTaskCommandHandler(ITaskRepository taskRepository, IMapper mapper, ILogger<CreateTaskCommandHandler> logger)
+public class CreateTaskCommandHandler(ITaskRepository taskRepository, IMapper mapper)
   : ICommandHandler<CreateTaskCommand, Result<TaskResponse>>
 {
-  public async Task<Result<TaskResponse>> Handle(CreateTaskCommand command, CancellationToken cancellationToken)
-  {
-    try
-    {
-      var state = mapper.Map<TaskAggregateState>(command);
-      TaskAggregate taskAggregate = new TaskAggregate(state);
-      
-      taskAggregate.Start(command.UserId);
-      
-      await taskRepository.SaveAsync(taskAggregate);
-      return mapper.Map<TaskResponse>(taskAggregate.State);
-    }
-    catch
-    {
-      logger.LogError("An error occurred while creating the task.");
-      return Result.Failure<TaskResponse>("An error occurred while creating the task.");
-    }
-  }
+  public Task<Result<TaskResponse>> Handle(CreateTaskCommand command, CancellationToken cancellationToken) =>
+    CreateTaskAggregate(command)
+      .ToResult("An error occurred while creating the task.")
+      .TapIf(command.StartsAtCreation, task => task.Start(command.UserId))
+      .Check(taskRepository.SaveAsync)
+      .Map(task => mapper.Map<TaskResponse>(task.State));
+
+  private Maybe<TaskAggregate> CreateTaskAggregate(CreateTaskCommand command) => 
+    new TaskAggregate(mapper.Map<TaskAggregateState>(command));
 }

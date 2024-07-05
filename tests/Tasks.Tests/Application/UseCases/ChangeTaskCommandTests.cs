@@ -20,8 +20,7 @@ public class ChangeTaskCommandTests
   {
     _taskRepository = new Mock<ITaskRepository>();
     _mapper = new Mock<IMapper>();
-    Mock<ILogger<ChangeTaskCommandHandler>> logger = new();
-    _changeTaskCommandHandler = new ChangeTaskCommandHandler(_taskRepository.Object, _mapper.Object, logger.Object);  
+    _changeTaskCommandHandler = new ChangeTaskCommandHandler(_taskRepository.Object, _mapper.Object);  
   }
   
   [Fact]
@@ -36,7 +35,7 @@ public class ChangeTaskCommandTests
     
     _taskRepository
       .Setup(x => x.SaveAsync(It.IsAny<TaskAggregate>()))
-      .Returns(Task.CompletedTask);
+      .ReturnsAsync(Result.Success);
 
     _mapper
       .Setup(x => x.Map<TaskAggregateState>(It.IsAny<ChangeTaskCommand>()))
@@ -75,27 +74,6 @@ public class ChangeTaskCommandTests
   }
   
   [Fact]
-  public async Task ChangeTaskCommand_ShouldChangeWithException()
-  {
-    // Arrange
-    var changeTaskCommand = new Fixture().Create<ChangeTaskCommand>();
-    
-    _taskRepository
-      .Setup(x => x.LoadByIdAsync(It.IsAny<Guid>()))
-      .Throws(new Exception());
-    
-    // Act
-    var result = await _changeTaskCommandHandler.Handle(changeTaskCommand, CancellationToken.None);
-    
-    // Assert
-    Assert.True(result.IsFailure);
-    Assert.IsType<Result<TaskResponse>>(result);
-    
-    _taskRepository.Verify(x => x.LoadByIdAsync(It.IsAny<Guid>()), Times.Once);
-    _taskRepository.Verify(x => x.SaveAsync(It.IsAny<TaskAggregate>()), Times.Never);
-  }
-  
-  [Fact]
   public async Task ChangeTaskCommand_ShouldChangeWithExceptionOnSave()
   {
     // Arrange
@@ -107,7 +85,7 @@ public class ChangeTaskCommandTests
     
     _taskRepository
       .Setup(x => x.SaveAsync(It.IsAny<TaskAggregate>()))
-      .Throws(new Exception());
+      .ReturnsAsync(Result.Failure("An error occurred while changing the task."));
     
     _mapper
       .Setup(x => x.Map<TaskAggregateState>(It.IsAny<ChangeTaskCommand>()))

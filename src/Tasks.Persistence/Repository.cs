@@ -33,13 +33,22 @@ public class Repository<TAggregate, TRepository>(EventsDbContext dbContext, IEve
     return aggregate;
   }
 
-  public async Task SaveAsync(TAggregate aggregate)
+  public async Task<Result> SaveAsync(TAggregate aggregate)
   {
-    PersistAggregateEvents(aggregate);
+    try
+    {
+      PersistAggregateEvents(aggregate);
 
-    await CommitEvents(aggregate);
-    
-    aggregate.MarkChangesAsCommitted();
+      await CommitEvents(aggregate);
+
+      aggregate.MarkChangesAsCommitted();
+      
+      return Result.Success();
+    }
+    catch (Exception e)
+    {
+      return Result.Failure(e.Message);
+    }
   }
 
   private async Task CommitEvents(TAggregate aggregate) 
