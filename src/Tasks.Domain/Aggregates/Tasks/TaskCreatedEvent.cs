@@ -4,6 +4,7 @@ namespace Tasks.Domain.Aggregates.Tasks;
 
 public class TaskCreatedEvent : DomainEvent
 {
+  public Guid UserId { get; set; }
   public DateTime At { get; set; }
   public DateTime DueAt { get; set; }
   public string Subject { get; set; } = string.Empty;

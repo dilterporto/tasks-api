@@ -13,6 +13,7 @@ public partial class TaskAggregate : AggregateRoot, ITaskAggregate
   public TaskAggregate(ITaskAggregateState state) : base(Guid.NewGuid()) =>
     ApplyChange(new TaskCreatedEvent
     {
+      UserId = state.UserId,
       At = state.At,
       DueAt = state.DueAt,
       Subject = state.Subject,
