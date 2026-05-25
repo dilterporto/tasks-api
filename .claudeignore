@@ -1,0 +1,10 @@
+# Build outputs
+**/obj/
+**/bin/
+
+# OS artifacts
+.DS_Store
+
+# IDE
+.vs/
+*.user

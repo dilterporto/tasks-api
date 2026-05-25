@@ -1,0 +1,32 @@
+name: Bug
+description: Something is not working
+labels: ["bug", "p2-high"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What is happening? What did you expect?
+    validations:
+      required: true
+
+  - type: textarea
+    id: root-cause
+    attributes:
+      label: Root Cause
+      description: Known or suspected cause
+
+  - type: textarea
+    id: fix
+    attributes:
+      label: Fix
+      description: Proposed solution
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      options: [p1-critical, p2-high, p3-normal]
+      default: 1
+    validations:
+      required: true
