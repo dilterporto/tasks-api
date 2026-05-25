@@ -10,7 +10,9 @@
     </PropertyGroup>
 
     <ItemGroup>       
-      <PackageReference Include="AutoFixture" />       
+      <PackageReference Include="AutoFixture" />
+      <PackageReference Include="Mapster" />
+      <PackageReference Include="Mapster.DependencyInjection" />       
       <PackageReference Include="Microsoft.NET.Test.Sdk" />       
       <PackageReference Include="Moq" />       
       <PackageReference Include="xunit" />

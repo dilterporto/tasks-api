@@ -1,15 +1,15 @@
-﻿using AutoMapper;
+using Mapster;
 using Tasks.Api.Apis.Tasks.Messages;
 using Tasks.Application.UseCases.ChangeTask;
 using Tasks.Application.UseCases.CreateTask;
 
 namespace Tasks.Api.Apis.Tasks.Mappings;
 
-public class TaskMappings : Profile
+public class TaskMappings : IRegister
 {
-  public TaskMappings()
+  public void Register(TypeAdapterConfig config)
   {
-    CreateMap<CreateTaskRequest, CreateTaskCommand>();
-    CreateMap<ChangeTaskRequest, ChangeTaskCommand>();
+    config.NewConfig<CreateTaskRequest, CreateTaskCommand>();
+    config.NewConfig<ChangeTaskRequest, ChangeTaskCommand>();
   }
 }

@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+﻿using MapsterMapper;
 using CSharpFunctionalExtensions;
 using Tasks.Abstractions.CQRS;
 using Tasks.Application.Contracts;

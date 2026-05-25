@@ -1,5 +1,5 @@
 using AutoFixture;
-using AutoMapper;
+using MapsterMapper;
 using CSharpFunctionalExtensions;
 using Microsoft.Extensions.Logging;
 using Moq;

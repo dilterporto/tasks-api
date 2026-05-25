@@ -10,6 +10,7 @@
 
     <ItemGroup>
       <PackageReference Include="FastEndpoints" />
+      <PackageReference Include="Mapster.DependencyInjection" />
       <PackageReference Include="FastEndpoints.Swagger" />
       <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" />
       <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
