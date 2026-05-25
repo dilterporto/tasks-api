@@ -1,5 +1,5 @@
 using AutoFixture;
-using AutoMapper;
+using MapsterMapper;
 using CSharpFunctionalExtensions;
 using Moq;
 using Tasks.Abstractions.EventSourcing;

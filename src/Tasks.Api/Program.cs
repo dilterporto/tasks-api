@@ -9,6 +9,8 @@ using Tasks.Abstractions.Logging;
 using Tasks.Application.Behaviors;
 using Tasks.Application.UseCases.CreateTask;
 using Tasks.DependencyInjection;
+using Mapster;
+using MapsterMapper;
 using Tasks.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -42,7 +44,11 @@ builder.Services.AddScoped(typeof(IPipelineBehavior<,>), typeof(UnitOfWorkPipeli
 builder.Services.AddScoped(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
 builder.Services.AddScoped(typeof(IPipelineBehavior<,>), typeof(CacheValidationPipelineBehavior<,>));
 builder.Services.AddMediatR(Assembly.GetExecutingAssembly(), typeof(CreateTaskCommand).Assembly);
-builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly(), typeof(CreateTaskCommand).Assembly);
+
+var mapsterConfig = TypeAdapterConfig.GlobalSettings;
+mapsterConfig.Scan(Assembly.GetExecutingAssembly(), typeof(CreateTaskCommand).Assembly);
+builder.Services.AddSingleton(mapsterConfig);
+builder.Services.AddScoped<MapsterMapper.IMapper, ServiceMapper>();
 
 builder.Services.AddSerilog();
 

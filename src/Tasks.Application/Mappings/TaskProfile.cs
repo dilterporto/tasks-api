@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using Mapster;
 using Tasks.Application.Contracts;
 using Tasks.Application.UseCases.ChangeTask;
 using Tasks.Application.UseCases.CreateTask;
@@ -7,19 +7,17 @@ using Tasks.Persistence.Reading.Projections;
 
 namespace Tasks.Application.Mappings;
 
-public class TaskProfile : Profile
+public class TaskProfile : IRegister
 {
-  public TaskProfile()
+  public void Register(TypeAdapterConfig config)
   {
-    CreateMap<TaskAggregateState, TaskResponse>();
-    CreateMap<CreateTaskCommand, TaskAggregateState>()
-      .ForMember(x =>
-        x.At, opt => opt.MapFrom(_ => DateTime.UtcNow));
-    CreateMap<ChangeTaskCommand, TaskAggregateState>();
-    CreateMap<TaskProjection, TaskResponse>();
-    CreateMap<TaskProjection, TaskResponseWithDue>()
-      .ForMember(x => x.Due, 
-        opt => 
-          opt.MapFrom(x => x.DueAt.Date == DateTime.UtcNow.Date ? "today" : "upcoming"));
+    config.NewConfig<TaskAggregateState, TaskResponse>();
+    config.NewConfig<CreateTaskCommand, TaskAggregateState>()
+      .Map(dest => dest.At, _ => DateTime.UtcNow);
+    config.NewConfig<ChangeTaskCommand, TaskAggregateState>();
+    config.NewConfig<TaskProjection, TaskResponse>();
+    config.NewConfig<TaskProjection, TaskResponseWithDue>()
+      .Map(dest => dest.Due,
+        src => src.DueAt.Date == DateTime.UtcNow.Date ? "today" : "upcoming");
   }
 }

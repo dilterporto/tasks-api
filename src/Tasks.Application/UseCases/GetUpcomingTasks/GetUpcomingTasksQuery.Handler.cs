@@ -1,4 +1,4 @@
-using AutoMapper;
+using MapsterMapper;
 using CSharpFunctionalExtensions;
 using MediatR;
 using Microsoft.Extensions.Logging;
