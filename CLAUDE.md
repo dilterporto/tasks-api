@@ -31,7 +31,7 @@ docker-compose -f docker-compose.dev-env.yml up
 
 Clean Architecture with CQRS and Event Sourcing across five projects:
 
-- **Tasks.Abstractions** — Shared interfaces and base classes (`AggregateRoot`, `ICacheManager`, `IEventCommitter<T>`, `IEventsCommiter`, pipeline behavior base classes). No external dependencies.
+- **Tasks.Abstractions** — Shared interfaces and base classes (`AggregateRoot`, `ICacheManager`, `IEventCommitter<T>`, `IEventsCommiter`, pipeline behavior base classes). Depends on `Mapster` for the object mapping abstraction.
 - **Tasks.Domain** — `TaskAggregate` (the only aggregate), four domain events, `ITaskRepository`. Pure domain logic.
 - **Tasks.Application** — MediatR commands/queries in `UseCases/`. Three pipeline behaviors in `Behaviors/`: `UnitOfWorkPipelineBehavior`, `LoggingBehavior`, `CacheValidationPipelineBehavior`.
 - **Tasks.Persistence** — Two EF Core DbContexts: `EventsDbContext` (event store, table `events`) and `ProjectionsDbContext` (read model, table `tasks`). `Repository<T>` reconstructs aggregates by replaying events. `EventCommitters` dispatches to four typed `IEventCommitter<T>` implementations that update projections after each event.
@@ -72,8 +72,10 @@ Clean Architecture with CQRS and Event Sourcing across five projects:
 2. Add a handler implementing `IRequestHandler<TCommand, Result<TResponse>>`
 3. If the use case mutates state: add a domain method on `TaskAggregate` that calls `ApplyChange(new SomeDomainEvent(...))`
 4. If a new event type is introduced: add `IEventCommitter<TNewEvent>` implementation in `Tasks.Persistence/Reading/Projections/EventCommitters/`, register it in `DependencyExtensions.cs` and in `EventCommitters` constructor
-5. Register the handler (MediatR scans assemblies automatically; no manual registration needed)
-6. Add a FastEndpoints endpoint in `Tasks.Api/Apis/Tasks/`
+5. If new object mappings are needed: add `config.NewConfig<TSource, TDest>()` in `TaskProfile.cs` (`Tasks.Application/Mappings/`) or `TaskMappings.cs` (`Tasks.Api/Apis/Tasks/Mappings/`) depending on the layer
+6. Register the handler (MediatR scans assemblies automatically; no manual registration needed)
+7. Add a FastEndpoints endpoint in `Tasks.Api/Apis/Tasks/`
+8. Update the use case table in `CLAUDE.md` and the endpoints table in `README.md`
 
 ## Git and Issue Workflow
 
@@ -116,3 +118,4 @@ Closes #12
 - Aggregates are never `new`-ed directly in handlers — always loaded via repository or created through the aggregate constructor (which emits `TaskCreatedEvent`).
 - Tests use constructor injection of mocks; no test base classes. AutoFixture generates test data; Moq for dependencies.
 - Package versions are centrally managed in `Directory.Packages.props` — add version there, reference without version in `.csproj`.
+- Object mapping uses **Mapster** (`IRegister` / `TypeAdapterConfig`). Define mappings in `TaskProfile` (Application layer) or `TaskMappings` (Api layer). Inject `MapsterMapper.IMapper` in handlers and endpoints.
