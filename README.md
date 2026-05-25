@@ -115,7 +115,7 @@ Command → Aggregate (apply event) → EventsDbContext (event store)
 | Migrations | Flyway |
 | Caching | Redis Stack |
 | Logging | Serilog + Seq |
-| Object mapping | AutoMapper |
+| Object mapping | Mapster |
 | Testing | xUnit, Moq, AutoFixture |
 
 ## Running Locally
