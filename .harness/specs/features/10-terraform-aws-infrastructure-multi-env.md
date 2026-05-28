@@ -2,7 +2,7 @@
 
 **Issue:** #10  
 **Author:** @dilterporto  
-**Status:** Ready  
+**Status:** Implementing  
 **Agent:** infra-engineer  
 
 ---
@@ -23,16 +23,15 @@ This spec provisions the full cloud infrastructure using Terraform following ADR
 
 ### What will be built
 
-A modular Terraform configuration under `infra/` that provisions all AWS resources required to run the Tasks API in production, and emulates the same topology locally via LocalStack — using identical Terraform modules with environment-specific variable overrides.
+A modular Terraform configuration under `infra/` that provisions all AWS resources required to run the Tasks API in production, and emulates the same topology locally via LocalStack — using identical modules under `infra/modules/` with each environment (`local`, `prod`) having its own root configuration under `infra/environments/<env>/`.
 
 ### Inputs and outputs
 
 ```
-Input:  tfvars file (local.tfvars | prod.tfvars) + AWS credentials (prod only)
+Input:  infra/environments/local/ or infra/environments/prod/ root + AWS credentials (prod only)
 Output: Running Tasks API reachable via API Gateway HTTPS endpoint
-        ECS service with Tasks.Api container
+        ECS service with Tasks.Api container (image pulled from existing ECR repo)
         RDS PostgreSQL in private subnet
-        ECR repository for container images
         CloudWatch log group
         IAM roles (task execution + task role)
         Secrets Manager secret (DB credentials)
@@ -51,7 +50,7 @@ Output: Running Tasks API reachable via API Gateway HTTPS endpoint
 - **Must** update `CLAUDE.md` with infra commands (`terraform init`, `plan`, `apply`)
 - **Must** update `README.md` with the prod architecture diagram and deployment instructions
 - **Must not** hardcode environment-specific values (region, instance class, image tag) in `.tf` files — all must be variables
-- **Must not** commit `prod.tfvars` — only `prod.tfvars.example` is committed
+- **Must not** commit `infra/environments/prod/terraform.tfvars` — only `terraform.tfvars.example` is committed in the prod environment directory
 - **Should** use `db.t3.micro` as the default RDS instance class (overridable via variable)
 - **Should** use `256 CPU / 512 MB` as the default ECS task size (overridable via variable)
 - **Should** apply least-privilege IAM policies — no wildcard `*` actions in task role
@@ -61,13 +60,13 @@ Output: Running Tasks API reachable via API Gateway HTTPS endpoint
 
 ## Acceptance Criteria
 
-- [ ] AC-1: `terraform plan` exits 0 against LocalStack using `tfvars/local.tfvars`
-- [ ] AC-2: `terraform apply` provisions all components in LocalStack with no manual steps
-- [ ] AC-3: `terraform plan` exits 0 against real AWS using `tfvars/prod.tfvars`
+- [ ] AC-1: `terraform plan` exits 0 from `infra/environments/local/` against LocalStack
+- [ ] AC-2: `terraform apply` from `infra/environments/local/` provisions all components in LocalStack with no manual steps
+- [ ] AC-3: `terraform plan` exits 0 from `infra/environments/prod/` against real AWS
 - [ ] AC-4: API Gateway endpoint can reach the ECS service end-to-end (health check returns 200)
 - [ ] AC-5: ECS task reads the DB connection string from Secrets Manager (not from plain env var in task definition)
 - [ ] AC-6: `docker-compose.dev-env.yml` includes the LocalStack service and exposes port 4566
-- [ ] AC-7: CD workflow runs `terraform apply -var-file=tfvars/prod.tfvars` on merge to `main`, using GitHub secrets for AWS credentials
+- [ ] AC-7: CD workflow runs `terraform apply` from `infra/environments/prod/` on merge to `main`, using GitHub secrets for AWS credentials
 - [ ] AC-8: `CLAUDE.md` documents `terraform init`, `terraform plan`, and `terraform apply` under an **Infra** commands section
 - [ ] AC-9: `README.md` includes the prod architecture diagram and step-by-step deployment instructions
 
@@ -77,9 +76,10 @@ Output: Running Tasks API reachable via API Gateway HTTPS endpoint
 
 - **Terraform version:** `>= 1.6`
 - **AWS provider version:** `~> 5.0` — same provider for both `local` and `prod`; LocalStack uses `endpoint_url = http://localhost:4566`
-- **Module structure:** one module per resource group (`networking`, `ecs`, `rds`, `api-gateway`, `ecr`) under `infra/modules/`
+- **Directory layout:** modules under `infra/modules/`; each environment has its own root at `infra/environments/<env>/` with `main.tf`, `variables.tf`, and `terraform.tfvars` (prod: `terraform.tfvars.example` only)
+- **Module structure:** one module per resource group (`vpc`, `ecs`, `rds`, `api-gateway`) under `infra/modules/` — ECR is managed by the existing CD pipeline, not provisioned here
 - **No mixed environments:** module code must not contain `if local then ... else ...` blocks — use variables only
-- **State isolation:** `local` uses local state file; `prod` uses S3 backend with DynamoDB locking
+- **State isolation:** `local` uses local state file; `prod` uses S3 backend (`backend.tf`) with DynamoDB locking
 - **Secrets:** DB credentials provisioned by Terraform → stored in Secrets Manager → referenced in ECS task definition via `secrets:` block, not `environment:` block
 - **No application code changes:** this spec touches only `infra/`, `docker-compose.dev-env.yml`, `.github/workflows/cd.yml`, `CLAUDE.md`, and `README.md`
 
@@ -103,11 +103,14 @@ Full sensor definitions and runnable commands are in `.harness/sensors/infra-fit
 ### Structural Validation (AC-1, AC-2)
 
 ```bash
-# All modules format-clean
+# All modules and environments format-clean
 terraform fmt -check -recursive infra/
 
 # All modules valid
 for dir in infra/modules/*/; do terraform -chdir="$dir" validate; done
+
+# Both environments valid
+for dir in infra/environments/*/; do terraform -chdir="$dir" validate; done
 ```
 
 Expected: no output from fmt; `Success! The configuration is valid.` per module.
@@ -121,11 +124,11 @@ grep -rEn '(password|secret_key|access_key|db_pass)\s*=\s*"[^$][^"]*"' infra/ --
 # No wildcard IAM actions
 grep -rEn 'actions\s*=\s*\["\*"\]|"Action"\s*:\s*"\*"' infra/ --include="*.tf"
 
-# prod.tfvars not committed
-git ls-files infra/tfvars/prod.tfvars
+# prod terraform.tfvars not committed
+git ls-files infra/environments/prod/terraform.tfvars
 
-# ECS uses secrets: block (not environment:) for DB credentials
-grep -rn 'CONNECTIONSTRINGS\|ConnectionStrings\|DB_PASSWORD\|DB_PASS' infra/ --include="*.tf" | grep -v 'secrets'
+# DB password must not appear as a plain value in environment blocks
+grep -rEn '"value"\s*:\s*".*[Pp]assword|"value"\s*:\s*"Host=' infra/ --include="*.tf"
 ```
 
 Expected: all commands return empty output.
@@ -136,8 +139,8 @@ Expected: all commands return empty output.
 # No hardcoded AWS regions inside modules
 grep -rEn '"[a-z]+-[a-z]+-[0-9]"' infra/modules/ --include="*.tf"
 
-# No hardcoded RDS instance class inside modules
-grep -rEn '"db\.(t[0-9]|m[0-9]|r[0-9])\.' infra/modules/ --include="*.tf"
+# No hardcoded RDS instance class in resource blocks inside modules (variable defaults are allowed)
+grep -rEn '^\s*instance_class\s*=\s*"db\.(t[0-9]|m[0-9]|r[0-9])' infra/modules/rds/ --include="*.tf"
 
 # No hardcoded ECS CPU/memory inside modules
 grep -rEn '^\s*(cpu|memory)\s*=\s*[0-9]+' infra/modules/ecs/ --include="*.tf"

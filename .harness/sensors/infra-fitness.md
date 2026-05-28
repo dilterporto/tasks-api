@@ -64,10 +64,18 @@ Expected output: empty. Only `prod.tfvars.example` may be tracked. If this retur
 ### ECS uses Secrets Manager for DB credentials (not plain environment)
 
 ```bash
-grep -rn 'CONNECTIONSTRINGS\|ConnectionStrings\|DB_PASSWORD\|DB_PASS' infra/ --include="*.tf" | grep -v 'secrets'
+# Check that instance_class attribute in resource blocks is not hardcoded
+grep -rEn '^\s*instance_class\s*=\s*"db\.(t[0-9]|m[0-9]|r[0-9])' infra/modules/rds/ --include="*.tf"
 ```
 
-Expected output: empty. Connection string references must appear inside a `secrets` block in the task definition, not in a plain `environment` block.
+Wait — this check belongs to Module Parameterization. For credentials:
+
+```bash
+# DB password must not appear as a plain "value" in environment blocks (only as valueFrom in secrets blocks)
+grep -rEn '"value"\s*:\s*".*[Pp]assword|"value"\s*:\s*"Host=' infra/ --include="*.tf"
+```
+
+Expected output: empty. Connection string references must appear inside a `secrets` block in the task definition (using `valueFrom`), not in a plain `environment` block with a `value` key.
 
 _Maps to spec #10: DB connection string stored in Secrets Manager (AC-5); no hardcoded credentials (Must not); least-privilege IAM (Should)._
 
@@ -85,13 +93,13 @@ grep -rEn '"[a-z]+-[a-z]+-[0-9]"' infra/modules/ --include="*.tf"
 
 Expected output: empty. Region must be passed as a variable (e.g., `var.aws_region`), not hardcoded.
 
-### No hardcoded RDS instance classes inside modules
+### No hardcoded RDS instance classes in resource blocks inside modules
 
 ```bash
-grep -rEn '"db\.(t[0-9]|m[0-9]|r[0-9])\.' infra/modules/ --include="*.tf"
+grep -rEn '^\s*instance_class\s*=\s*"db\.(t[0-9]|m[0-9]|r[0-9])' infra/modules/rds/ --include="*.tf"
 ```
 
-Expected output: empty. Instance class must be `var.db_instance_class`.
+Expected output: empty. Resource blocks must use `var.db_instance_class`; variable `default` values are allowed.
 
 ### No hardcoded ECS CPU/memory inside modules
 

@@ -148,3 +148,57 @@ dotnet run --project src/Tasks.Api
 ```bash
 dotnet test tests/Tasks.Tests/
 ```
+
+## Production Infrastructure
+
+The production environment runs on AWS, provisioned via Terraform:
+
+```
+Internet → API Gateway (HTTP API)
+         → VPC Link → NLB (internal)
+         → ECS Fargate (Tasks.Api container)
+         → RDS PostgreSQL (private subnet)
+```
+
+### AWS Resources
+
+| Resource | Description |
+|----------|-------------|
+| API Gateway (HTTP API) | Public entrypoint — routes all traffic via VPC Link |
+| VPC Link + NLB | Private integration between API Gateway and ECS |
+| ECS Fargate | Serverless container runtime for `Tasks.Api` |
+| RDS PostgreSQL | Managed database in private subnet |
+| Secrets Manager | Stores DB credentials — injected into ECS at runtime |
+| CloudWatch Logs | Container log aggregation (`/ecs/tasks-api`) |
+
+### Deploying to Production
+
+Deployments happen automatically on merge to `main` via `.github/workflows/cd.yml`:
+
+1. Builds and pushes the Docker image to ECR
+2. Runs `terraform apply` from `infra/environments/prod/`
+3. ECS pulls the new image and performs a rolling update
+
+To deploy manually:
+
+```bash
+# Set required environment variables
+export AWS_ACCESS_KEY_ID=<key>
+export AWS_SECRET_ACCESS_KEY=<secret>
+export AWS_REGION=us-east-1
+
+cd infra/environments/prod
+cp terraform.tfvars.example terraform.tfvars  # fill in values
+terraform init
+terraform apply
+```
+
+### Local infrastructure simulation (LocalStack)
+
+```bash
+docker-compose -f docker-compose.dev-env.yml up localstack
+
+cd infra/environments/local
+terraform init
+terraform apply
+```
