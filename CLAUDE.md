@@ -137,14 +137,16 @@ This project uses Spec-Driven Development via the `.harness/` directory:
 
 **Workflow for new features:**
 1. `architect` writes a spec in `.harness/specs/features/<N>-<slug>.md`
-2. `engineer` loads the spec + relevant guides and implements
-3. `reviewer` checks against spec sensors before merge
+2. `planner` reads the spec and writes `.harness/specs/features/<N>-<slug>.plan.md` — decomposes into tasks, each assigned to an agent (`engineer`, `infra-engineer`, `architect`)
+3. Implementation agents execute their assigned tasks from the plan
+4. `reviewer` checks against spec sensors before merge
 
 **Starting a task with an agent:**
 ```
 Agent: engineer
 Task: implement issue #N
 Spec: .harness/specs/features/N-slug.md
+Plan: .harness/specs/features/N-slug.plan.md
 ```
 
 See `.harness/agents/AGENTS.md` for the full agent registry and spec-first rule.

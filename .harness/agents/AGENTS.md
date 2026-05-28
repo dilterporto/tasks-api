@@ -6,10 +6,11 @@ Specialized agents for this repository. Each agent has a defined mandate, contex
 
 | Agent | File | Mandate | When to use |
 |-------|------|---------|-------------|
-| `engineer` | [engineer.md](engineer.md) | Implement use cases and features following DDD/CQRS/Event Sourcing patterns | New use cases, bug fixes, refactoring in `src/` |
 | `architect` | [architect.md](architect.md) | Design decisions, architecture review, ADR authoring | New patterns, cross-cutting changes, dependency additions |
-| `reviewer` | [reviewer.md](reviewer.md) | Code review against spec, conventions and architecture fitness | PR review |
+| `planner` | [planner.md](planner.md) | Decompose a spec into tasks and allocate each to the right agent | After spec is `Ready`, before any implementation starts |
+| `engineer` | [engineer.md](engineer.md) | Implement use cases and features following DDD/CQRS/Event Sourcing patterns | New use cases, bug fixes, refactoring in `src/` |
 | `infra-engineer` | [infra-engineer.md](infra-engineer.md) | Terraform infrastructure, AWS resources, multi-environment config | Everything in `infra/` |
+| `reviewer` | [reviewer.md](reviewer.md) | Code review against spec, conventions and architecture fitness | PR review |
 
 ## How to invoke an agent
 
