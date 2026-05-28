@@ -5,6 +5,7 @@ using Tasks.Abstractions.EventSourcing;
 using Tasks.Domain.Aggregates.Tasks;
 using Tasks.Persistence.Events;
 using Tasks.Persistence.Reading;
+using Tasks.Domain.Projections;
 using Tasks.Persistence.Reading.Projections;
 using Tasks.Persistence.Reading.Projections.EventCommitters;
 using Tasks.Persistence.Repositories;

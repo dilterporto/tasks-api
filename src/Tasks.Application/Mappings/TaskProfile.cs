@@ -3,7 +3,7 @@ using Tasks.Application.Contracts;
 using Tasks.Application.UseCases.ChangeTask;
 using Tasks.Application.UseCases.CreateTask;
 using Tasks.Domain.Aggregates.Tasks;
-using Tasks.Persistence.Reading.Projections;
+using Tasks.Domain.Projections;
 
 namespace Tasks.Application.Mappings;
 

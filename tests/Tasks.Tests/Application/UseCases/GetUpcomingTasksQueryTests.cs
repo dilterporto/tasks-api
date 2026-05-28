@@ -5,7 +5,7 @@ using Tasks.Abstractions.Caching;
 using Tasks.Abstractions.EventSourcing;
 using Tasks.Application.Contracts;
 using Tasks.Application.UseCases.GetUpcomingTasks;
-using Tasks.Persistence.Reading.Projections;
+using Tasks.Domain.Projections;
 using Xunit;
 
 namespace Tasks.Tests.Application.UseCases;
