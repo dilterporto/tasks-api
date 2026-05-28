@@ -119,3 +119,32 @@ Closes #12
 - Tests use constructor injection of mocks; no test base classes. AutoFixture generates test data; Moq for dependencies.
 - Package versions are centrally managed in `Directory.Packages.props` — add version there, reference without version in `.csproj`.
 - Object mapping uses **Mapster** (`IRegister` / `TypeAdapterConfig`). Define mappings in `TaskProfile` (Application layer) or `TaskMappings` (Api layer). Inject `MapsterMapper.IMapper` in handlers and endpoints.
+
+## Harness Engineering
+
+This project uses Spec-Driven Development via the `.harness/` directory:
+
+```
+.harness/
+├── agents/          ← Specialized agent mandates (engineer, architect, reviewer, infra-engineer)
+├── architecture/    ← Architecture overview and ADRs
+│   └── adr/
+├── guides/          ← How-to guides for recurring patterns
+├── sensors/         ← Fitness checks for architecture and spec compliance
+└── specs/           ← Feature specs (one file per issue)
+    └── features/
+```
+
+**Workflow for new features:**
+1. `architect` writes a spec in `.harness/specs/features/<N>-<slug>.md`
+2. `engineer` loads the spec + relevant guides and implements
+3. `reviewer` checks against spec sensors before merge
+
+**Starting a task with an agent:**
+```
+Agent: engineer
+Task: implement issue #N
+Spec: .harness/specs/features/N-slug.md
+```
+
+See `.harness/agents/AGENTS.md` for the full agent registry and spec-first rule.
