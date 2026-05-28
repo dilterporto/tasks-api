@@ -1,0 +1,10 @@
+# Copy this file to terraform.tfvars and fill in the values.
+# terraform.tfvars is gitignored — never commit it.
+
+aws_region        = "us-east-1"
+name              = "tasks-api"
+container_image   = "<ECR_REGISTRY>/<ECR_REPO>:<IMAGE_TAG>"
+db_instance_class = "db.t3.micro"
+task_cpu          = 256
+task_memory       = 512
+redis_endpoint    = ""

@@ -27,6 +27,25 @@ docker-compose up
 docker-compose -f docker-compose.dev-env.yml up
 ```
 
+## Infra
+
+```bash
+# Start LocalStack (required before terraform commands against local env)
+docker-compose -f docker-compose.dev-env.yml up localstack
+
+# Local environment (LocalStack)
+cd infra/environments/local
+terraform init
+terraform plan
+terraform apply
+
+# Production environment (requires AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION)
+cd infra/environments/prod
+terraform init   # initializes S3 remote state backend
+terraform plan
+terraform apply
+```
+
 ## Architecture
 
 Clean Architecture with CQRS and Event Sourcing across five projects:

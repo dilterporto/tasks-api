@@ -40,6 +40,19 @@ services:
       - "8001:8001"
     networks:
       - default
+  localstack:
+    image: localstack/localstack:latest
+    ports:
+      - "4566:4566"
+    environment:
+      - LOCALSTACK_AUTH_TOKEN=${LOCALSTACK_AUTH_TOKEN}
+      - SERVICES=ec2,ecs,rds,apigateway,apigatewayv2,secretsmanager,iam,logs,elasticloadbalancing
+      - DEFAULT_REGION=us-east-1
+      - DOCKER_HOST=unix:///var/run/docker.sock
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    networks:
+      - default
 networks:
   default:
     name: tasks-api

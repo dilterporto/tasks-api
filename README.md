@@ -148,3 +148,113 @@ dotnet run --project src/Tasks.Api
 ```bash
 dotnet test tests/Tasks.Tests/
 ```
+
+## Production Infrastructure
+
+The production environment runs on AWS, provisioned via Terraform:
+
+```
+Internet → API Gateway (HTTP API)
+         → VPC Link → NLB (internal)
+         → ECS Fargate (Tasks.Api container)
+         → RDS PostgreSQL (private subnet)
+```
+
+### AWS Resources
+
+| Resource | Description |
+|----------|-------------|
+| API Gateway (HTTP API) | Public entrypoint — routes all traffic via VPC Link |
+| VPC Link + NLB | Private integration between API Gateway and ECS |
+| ECS Fargate | Serverless container runtime for `Tasks.Api` |
+| RDS PostgreSQL | Managed database in private subnet |
+| Secrets Manager | Stores DB credentials — injected into ECS at runtime |
+| CloudWatch Logs | Container log aggregation (`/ecs/tasks-api`) |
+
+### Deploying to Production
+
+Deployments happen automatically on merge to `main` via `.github/workflows/cd.yml`:
+
+1. Builds and pushes the Docker image to ECR
+2. Runs `terraform apply` from `infra/environments/prod/`
+3. ECS pulls the new image and performs a rolling update
+
+To deploy manually:
+
+```bash
+# Set required environment variables
+export AWS_ACCESS_KEY_ID=<key>
+export AWS_SECRET_ACCESS_KEY=<secret>
+export AWS_REGION=us-east-1
+
+cd infra/environments/prod
+cp terraform.tfvars.example terraform.tfvars  # fill in values
+terraform init
+terraform apply
+```
+
+### One-time state backend bootstrap (prod only)
+
+Before the first `terraform init` in `infra/environments/prod/`, the S3 bucket and DynamoDB table referenced in `backend.tf` must exist:
+
+```bash
+# Create S3 bucket for Terraform state
+aws s3api create-bucket \
+  --bucket tasks-api-terraform-state \
+  --region us-east-1
+
+aws s3api put-bucket-versioning \
+  --bucket tasks-api-terraform-state \
+  --versioning-configuration Status=Enabled
+
+aws s3api put-bucket-encryption \
+  --bucket tasks-api-terraform-state \
+  --server-side-encryption-configuration \
+    '{"Rules":[{"ApplyServerSideEncryptionByDefault":{"SSEAlgorithm":"AES256"}}]}'
+
+# Create DynamoDB table for state locking
+aws dynamodb create-table \
+  --table-name tasks-api-terraform-locks \
+  --attribute-definitions AttributeName=LockID,AttributeType=S \
+  --key-schema AttributeName=LockID,KeyType=HASH \
+  --billing-mode PAY_PER_REQUEST \
+  --region us-east-1
+```
+
+These resources are intentionally outside Terraform management to avoid chicken-and-egg bootstrapping.
+
+### Terraform validation (no cloud required)
+
+The Terraform configuration can be validated offline (no LocalStack or AWS needed):
+
+```bash
+cd infra/environments/local
+terraform init
+terraform validate   # validates all four modules
+```
+
+### Terraform plan against LocalStack
+
+LocalStack 3.8 (Community) is used for local development. Start it first:
+
+```bash
+docker-compose -f docker-compose.dev-env.yml up localstack
+```
+
+Then run the plan:
+
+```bash
+export AWS_ACCESS_KEY_ID=test
+export AWS_SECRET_ACCESS_KEY=test
+
+cd infra/environments/local
+terraform init
+terraform plan     # exits 0, shows 39 resources
+```
+
+> **LocalStack Hobby vs Pro:**
+> - **Community (no token):** Only VPC, IAM, Secrets Manager, and CloudWatch Logs.
+> - **Hobby (free token required):** Adds ECS, RDS, and API Gateway v2. Set `LOCALSTACK_AUTH_TOKEN` in your shell before `docker-compose up`. Register at [app.localstack.cloud](https://app.localstack.cloud) to get a token.
+> - **Pro:** Adds NLB/ELBv2 (required for API Gateway → ECS traffic routing). Without it, 34/39 resources provision successfully — only the NLB, target group, listener, ECS service, and API Gateway integration/route are skipped.
+>
+> For day-to-day API development, the `docker-compose.dev-env.yml` services (Postgres, Redis, Seq) are sufficient without Terraform.
