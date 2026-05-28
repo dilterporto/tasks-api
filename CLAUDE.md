@@ -95,7 +95,7 @@ PR body template (`.github/pull_request_template.md` pre-fills this):
 ## Summary
 - What changed and why
 
-Closes #12
+Closes #N
 ```
 
 **Never close issues manually** via the GitHub Project board — only PR merges close issues.
