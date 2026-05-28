@@ -2,7 +2,7 @@
 
 **Issue:** #14  
 **Author:** @dilterporto  
-**Status:** Ready  
+**Status:** Implementing  
 **Agent:** engineer  
 
 ---
