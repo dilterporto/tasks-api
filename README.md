@@ -193,6 +193,36 @@ terraform init
 terraform apply
 ```
 
+### One-time state backend bootstrap (prod only)
+
+Before the first `terraform init` in `infra/environments/prod/`, the S3 bucket and DynamoDB table referenced in `backend.tf` must exist:
+
+```bash
+# Create S3 bucket for Terraform state
+aws s3api create-bucket \
+  --bucket tasks-api-terraform-state \
+  --region us-east-1
+
+aws s3api put-bucket-versioning \
+  --bucket tasks-api-terraform-state \
+  --versioning-configuration Status=Enabled
+
+aws s3api put-bucket-encryption \
+  --bucket tasks-api-terraform-state \
+  --server-side-encryption-configuration \
+    '{"Rules":[{"ApplyServerSideEncryptionByDefault":{"SSEAlgorithm":"AES256"}}]}'
+
+# Create DynamoDB table for state locking
+aws dynamodb create-table \
+  --table-name tasks-api-terraform-locks \
+  --attribute-definitions AttributeName=LockID,AttributeType=S \
+  --key-schema AttributeName=LockID,KeyType=HASH \
+  --billing-mode PAY_PER_REQUEST \
+  --region us-east-1
+```
+
+These resources are intentionally outside Terraform management to avoid chicken-and-egg bootstrapping.
+
 ### Local infrastructure simulation (LocalStack)
 
 ```bash

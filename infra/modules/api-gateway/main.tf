@@ -1,12 +1,3 @@
-terraform {
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 5.0"
-    }
-  }
-}
-
 resource "aws_apigatewayv2_vpc_link" "this" {
   name               = "${var.name}-vpc-link"
   security_group_ids = [var.api_gateway_security_group_id]

@@ -56,19 +56,12 @@ Expected output: empty. Task role and execution role must use specific action AR
 ### prod.tfvars not committed
 
 ```bash
-git ls-files infra/tfvars/prod.tfvars
+git ls-files infra/environments/prod/terraform.tfvars
 ```
 
-Expected output: empty. Only `prod.tfvars.example` may be tracked. If this returns a path, remove it from the index.
+Expected output: empty. Only `terraform.tfvars.example` may be tracked. If this returns a path, remove it from the index.
 
 ### ECS uses Secrets Manager for DB credentials (not plain environment)
-
-```bash
-# Check that instance_class attribute in resource blocks is not hardcoded
-grep -rEn '^\s*instance_class\s*=\s*"db\.(t[0-9]|m[0-9]|r[0-9])' infra/modules/rds/ --include="*.tf"
-```
-
-Wait — this check belongs to Module Parameterization. For credentials:
 
 ```bash
 # DB password must not appear as a plain "value" in environment blocks (only as valueFrom in secrets blocks)

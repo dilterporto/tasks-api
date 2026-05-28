@@ -60,11 +60,13 @@ variable "desired_count" {
 variable "db_secret_arn" {
   description = "Secrets Manager ARN for DB credentials — injected into the container via secrets block"
   type        = string
+  sensitive   = true
 }
 
 variable "redis_endpoint" {
   description = "Redis endpoint in host:port format"
   type        = string
+  sensitive   = true
 }
 
 variable "log_retention_days" {

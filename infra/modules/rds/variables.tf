@@ -41,3 +41,9 @@ variable "db_username" {
   type        = string
   default     = "tasksadmin"
 }
+
+variable "recovery_window_in_days" {
+  description = "Number of days Secrets Manager waits before deleting the secret (0 = immediate, prod should use 7)"
+  type        = number
+  default     = 0
+}
