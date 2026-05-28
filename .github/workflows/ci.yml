@@ -57,9 +57,9 @@ jobs:
 
       - name: "Check: All command handlers use Result pattern (.cs)"
         run: |
-          VIOLATIONS=$(grep -rL "Result<" src/Tasks.Application/UseCases/ --include="*Handler.cs")
+          VIOLATIONS=$(grep -rL "Result" src/Tasks.Application/UseCases/ --include="*Handler.cs")
           if [ -n "$VIOLATIONS" ]; then
-            echo "VIOLATION: The following handlers do not use Result<T>:"
+            echo "VIOLATION: The following handlers do not use Result or Result<T>:"
             echo "$VIOLATIONS"
             exit 1
           fi
