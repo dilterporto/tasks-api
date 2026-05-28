@@ -49,13 +49,13 @@ Expected output: empty (no matches).
 
 ## Result pattern check
 
-All command handlers must return `Result<T>`:
+All command handlers must return `Result` or `Result<T>`:
 
 ```bash
-grep -rL "Result<" src/Tasks.Application/UseCases/ --include="*Handler.cs"
+grep -rL "Result" src/Tasks.Application/UseCases/ --include="*Handler.cs"
 ```
 
-Expected output: empty (all handler files contain `Result<`).
+Expected output: empty (all handler files contain `Result`).
 
 ## Automated enforcement
 
