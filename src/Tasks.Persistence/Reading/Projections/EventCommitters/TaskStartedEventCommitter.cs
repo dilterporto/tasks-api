@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using Tasks.Abstractions.EventSourcing;
 using Tasks.Domain.Aggregates.Tasks;
+using Tasks.Domain.Projections;
 using TaskStatus = Tasks.Domain.Aggregates.Tasks.TaskStatus;
 
 namespace Tasks.Persistence.Reading.Projections.EventCommitters;
