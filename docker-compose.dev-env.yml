@@ -41,7 +41,7 @@ services:
     networks:
       - default
   localstack:
-    image: localstack/localstack:latest
+    image: localstack/localstack:3.8
     ports:
       - "4566:4566"
     environment:

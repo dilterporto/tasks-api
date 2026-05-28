@@ -18,16 +18,14 @@ Expected output: no output (all files already formatted). Any output names files
 
 ### Module validation
 
-Run inside each module directory:
+Modules inherit provider requirements from the root, so validate from the environment:
 
 ```bash
-for dir in infra/modules/*/; do
-  echo "==> $dir"
-  terraform -chdir="$dir" validate
-done
+terraform -chdir=infra/environments/local init -backend=false -input=false
+terraform -chdir=infra/environments/local validate
 ```
 
-Expected output: `Success! The configuration is valid.` for each module.
+Expected output: `Success! The configuration is valid.` (validates all four child modules).
 
 _Maps to spec #10: `terraform validate` passes for all modules (AC-1)._
 

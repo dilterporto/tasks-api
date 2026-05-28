@@ -223,12 +223,33 @@ aws dynamodb create-table \
 
 These resources are intentionally outside Terraform management to avoid chicken-and-egg bootstrapping.
 
-### Local infrastructure simulation (LocalStack)
+### Terraform validation (no cloud required)
+
+The Terraform configuration can be validated offline (no LocalStack or AWS needed):
+
+```bash
+cd infra/environments/local
+terraform init
+terraform validate   # validates all four modules
+```
+
+### Terraform plan against LocalStack
+
+LocalStack 3.8 (Community) is used for local development. Start it first:
 
 ```bash
 docker-compose -f docker-compose.dev-env.yml up localstack
+```
+
+Then run the plan:
+
+```bash
+export AWS_ACCESS_KEY_ID=test
+export AWS_SECRET_ACCESS_KEY=test
 
 cd infra/environments/local
 terraform init
-terraform apply
+terraform plan     # exits 0, shows 39 resources
 ```
+
+> **LocalStack Pro note:** `terraform apply` requires LocalStack Pro for ECS, RDS, Network Load Balancer, and API Gateway v2. Community edition supports only VPC, IAM, Secrets Manager, and CloudWatch Logs. For full stack local testing, set `LOCALSTACK_AUTH_TOKEN` and use LocalStack Pro. For day-to-day development, the `docker-compose.dev-env.yml` app services (Postgres, Redis, Seq) are sufficient without Terraform.

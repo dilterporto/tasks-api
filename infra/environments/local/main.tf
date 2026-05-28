@@ -21,14 +21,14 @@ provider "aws" {
   skip_requesting_account_id  = true
 
   endpoints {
-    ec2            = "http://localhost:4566"
-    ecs            = "http://localhost:4566"
-    rds            = "http://localhost:4566"
-    apigateway     = "http://localhost:4566"
-    apigatewayv2   = "http://localhost:4566"
-    secretsmanager = "http://localhost:4566"
-    iam            = "http://localhost:4566"
-    logs           = "http://localhost:4566"
+    ec2                  = "http://localhost:4566"
+    ecs                  = "http://localhost:4566"
+    rds                  = "http://localhost:4566"
+    apigateway           = "http://localhost:4566"
+    apigatewayv2         = "http://localhost:4566"
+    secretsmanager       = "http://localhost:4566"
+    iam                  = "http://localhost:4566"
+    logs                 = "http://localhost:4566"
     elasticloadbalancing = "http://localhost:4566"
   }
 }
