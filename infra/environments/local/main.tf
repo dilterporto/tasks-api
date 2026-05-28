@@ -29,6 +29,7 @@ provider "aws" {
     secretsmanager       = "http://localhost:4566"
     iam                  = "http://localhost:4566"
     logs                 = "http://localhost:4566"
+    elbv2                = "http://localhost:4566"
     elasticloadbalancing = "http://localhost:4566"
   }
 }

@@ -252,4 +252,9 @@ terraform init
 terraform plan     # exits 0, shows 39 resources
 ```
 
-> **LocalStack Pro note:** `terraform apply` requires LocalStack Pro for ECS, RDS, Network Load Balancer, and API Gateway v2. Community edition supports only VPC, IAM, Secrets Manager, and CloudWatch Logs. For full stack local testing, set `LOCALSTACK_AUTH_TOKEN` and use LocalStack Pro. For day-to-day development, the `docker-compose.dev-env.yml` app services (Postgres, Redis, Seq) are sufficient without Terraform.
+> **LocalStack Hobby vs Pro:**
+> - **Community (no token):** Only VPC, IAM, Secrets Manager, and CloudWatch Logs.
+> - **Hobby (free token required):** Adds ECS, RDS, and API Gateway v2. Set `LOCALSTACK_AUTH_TOKEN` in your shell before `docker-compose up`. Register at [app.localstack.cloud](https://app.localstack.cloud) to get a token.
+> - **Pro:** Adds NLB/ELBv2 (required for API Gateway → ECS traffic routing). Without it, 34/39 resources provision successfully — only the NLB, target group, listener, ECS service, and API Gateway integration/route are skipped.
+>
+> For day-to-day API development, the `docker-compose.dev-env.yml` services (Postgres, Redis, Seq) are sufficient without Terraform.

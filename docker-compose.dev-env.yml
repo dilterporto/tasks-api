@@ -41,10 +41,11 @@ services:
     networks:
       - default
   localstack:
-    image: localstack/localstack:3.8
+    image: localstack/localstack:latest
     ports:
       - "4566:4566"
     environment:
+      - LOCALSTACK_AUTH_TOKEN=${LOCALSTACK_AUTH_TOKEN}
       - SERVICES=ec2,ecs,rds,apigateway,apigatewayv2,secretsmanager,iam,logs,elasticloadbalancing
       - DEFAULT_REGION=us-east-1
       - DOCKER_HOST=unix:///var/run/docker.sock
