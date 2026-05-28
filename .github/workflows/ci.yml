@@ -7,6 +7,63 @@ on:
     branches: [main]
 
 jobs:
+  architecture-sensor:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: "Check: Application does not reference Persistence (.csproj)"
+        run: |
+          if grep -r "Tasks.Persistence" src/Tasks.Application/ --include="*.csproj"; then
+            echo "VIOLATION: Application must not reference Persistence"
+            exit 1
+          fi
+
+      - name: "Check: Domain does not reference other layers (.csproj)"
+        run: |
+          if grep -rE "Tasks\.(Application|Persistence|Api|DependencyInjection)" src/Tasks.Domain/ --include="*.csproj"; then
+            echo "VIOLATION: Domain must not reference Application, Persistence, Api, or DependencyInjection"
+            exit 1
+          fi
+
+      - name: "Check: Api does not reference Persistence directly (.csproj)"
+        run: |
+          if grep -r "Tasks.Persistence" src/Tasks.Api/ --include="*.csproj"; then
+            echo "VIOLATION: Api must not reference Persistence directly"
+            exit 1
+          fi
+
+      - name: "Check: Application does not use ProjectionsDbContext (.cs)"
+        run: |
+          if grep -r "ProjectionsDbContext" src/Tasks.Application/ --include="*.cs"; then
+            echo "VIOLATION: Application must not use ProjectionsDbContext directly"
+            exit 1
+          fi
+
+      - name: "Check: Application does not use EventsDbContext (.cs)"
+        run: |
+          if grep -r "EventsDbContext" src/Tasks.Application/ --include="*.cs"; then
+            echo "VIOLATION: Application must not use EventsDbContext directly"
+            exit 1
+          fi
+
+      - name: "Check: Application does not import Tasks.Persistence namespace (.cs)"
+        run: |
+          if grep -r "using Tasks.Persistence" src/Tasks.Application/ --include="*.cs"; then
+            echo "VIOLATION: Application must not import Tasks.Persistence namespace"
+            exit 1
+          fi
+
+      - name: "Check: All command handlers use Result pattern (.cs)"
+        run: |
+          VIOLATIONS=$(grep -rL "Result<" src/Tasks.Application/UseCases/ --include="*Handler.cs")
+          if [ -n "$VIOLATIONS" ]; then
+            echo "VIOLATION: The following handlers do not use Result<T>:"
+            echo "$VIOLATIONS"
+            exit 1
+          fi
+
   build-and-test:
     runs-on: ubuntu-latest
 

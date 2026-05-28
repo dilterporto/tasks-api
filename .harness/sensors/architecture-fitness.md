@@ -57,6 +57,8 @@ grep -rL "Result<" src/Tasks.Application/UseCases/ --include="*Handler.cs"
 
 Expected output: empty (all handler files contain `Result<`).
 
-## Automated enforcement (future)
+## Automated enforcement
 
-These checks are candidates for a GitHub Actions step or an ArchUnitNET test suite. Until then, run them manually before opening a PR for any change that touches project references or adds new using directives across layers.
+These checks run automatically on every PR via the `architecture-sensor` job in `.github/workflows/ci.yml`. The job is a required status check — PRs that introduce violations cannot be merged.
+
+Run the checks manually with the commands above when working locally. The CI job runs the exact same grep commands.
