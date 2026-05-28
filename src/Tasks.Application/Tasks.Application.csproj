@@ -6,7 +6,7 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
     <ItemGroup>
-      <ProjectReference Include="..\Tasks.Persistence\Tasks.Persistence.csproj" />
+      <ProjectReference Include="..\Tasks.Domain\Tasks.Domain.csproj" />
     </ItemGroup>
 
 </Project>

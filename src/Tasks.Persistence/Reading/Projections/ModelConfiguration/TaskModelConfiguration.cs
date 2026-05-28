@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Tasks.Domain.Projections;
 
 namespace Tasks.Persistence.Reading.Projections.ModelConfiguration;
 

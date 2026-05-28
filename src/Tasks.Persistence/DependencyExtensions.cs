@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Tasks.Abstractions.EventSourcing;
 using Tasks.Domain.Aggregates.Tasks;
+using Tasks.Domain.Projections;
 using Tasks.Persistence.Events;
 using Tasks.Persistence.Reading;
 using Tasks.Persistence.Reading.Projections;
