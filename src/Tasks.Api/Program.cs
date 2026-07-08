@@ -1,7 +1,9 @@
 ﻿using System.Reflection;
+using System.Text.Json;
 using FastEndpoints;
 using FastEndpoints.Swagger;
 using MediatR;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Serilog;
 using StackExchange.Redis;
 using Tasks.Abstractions.Caching;
@@ -69,5 +71,27 @@ app
   {
 
   });
+
+app.MapHealthChecks("/health/live", new HealthCheckOptions
+{
+  Predicate = _ => false
+});
+
+app.MapHealthChecks("/health/ready", new HealthCheckOptions
+{
+  Predicate = r => r.Tags.Contains("readiness"),
+  ResponseWriter = async (context, report) =>
+  {
+    context.Response.ContentType = "application/json; charset=utf-8";
+    var result = JsonSerializer.Serialize(new
+    {
+      status = report.Status.ToString(),
+      results = report.Entries.ToDictionary(
+        e => e.Key,
+        e => new { status = e.Value.Status.ToString() })
+    });
+    await context.Response.WriteAsync(result);
+  }
+});
 
 app.Run();
