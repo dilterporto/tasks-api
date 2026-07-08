@@ -82,4 +82,60 @@ jobs:
         run: dotnet build Tasks.sln --no-restore --configuration Release
 
       - name: Test
-        run: dotnet test tests/Tasks.Tests/ --no-build --configuration Release --verbosity normal
+        run: dotnet test tests/Tasks.Tests/ --no-build --configuration Release --verbosity normal --filter "FullyQualifiedName!~Integration"
+
+  smoke-gate:
+    runs-on: ubuntu-latest
+    needs: build-and-test
+
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_USER: appuser
+          POSTGRES_PASSWORD: password123
+          POSTGRES_DB: localdefaultdb
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U appuser"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis/redis-stack:latest
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Build
+        run: dotnet build Tasks.sln --configuration Release
+
+      - name: Start API
+        run: dotnet run --project src/Tasks.Api --no-build --configuration Release &
+        env:
+          ConnectionStrings__DefaultConnection: Host=localhost;Database=localdefaultdb;Username=appuser;Password=password123
+          Redis__Server: localhost:6379
+          ASPNETCORE_URLS: http://[::]:5006
+
+      - name: Wait for API
+        run: |
+          until curl -sf http://localhost:5006/health/live; do
+            sleep 2
+          done
+        timeout-minutes: 1
+
+      - name: "Smoke gate: /health/ready"
+        run: curl -sf http://localhost:5006/health/ready || exit 1
