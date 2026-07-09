@@ -53,14 +53,17 @@ builder.Services.AddScoped<MapsterMapper.IMapper, ServiceMapper>();
 
 builder.Services.AddSerilog();
 
-builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(configuration.GetSection("Redis:Server").Value!));
-builder.Services.AddScoped<IDatabase>(o =>
+var redisServer = configuration.GetSection("Redis:Server").Value;
+if (!string.IsNullOrEmpty(redisServer))
 {
-  var muxer = o.GetRequiredService<IConnectionMultiplexer>();
-  return muxer.GetDatabase();
-});
-
-builder.Services.AddScoped<ICacheManager, CacheManager>();
+  builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(redisServer));
+  builder.Services.AddScoped<IDatabase>(o => o.GetRequiredService<IConnectionMultiplexer>().GetDatabase());
+  builder.Services.AddScoped<ICacheManager, CacheManager>();
+}
+else
+{
+  builder.Services.AddScoped<ICacheManager, NullCacheManager>();
+}
 
 var app = builder.Build();
 
