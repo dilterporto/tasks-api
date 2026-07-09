@@ -18,9 +18,9 @@ output "task_definition_arn" {
   value       = aws_ecs_task_definition.this.arn
 }
 
-output "nlb_listener_arn" {
-  description = "Internal NLB listener ARN — consumed by the api-gateway module integration"
-  value       = aws_lb_listener.ecs.arn
+output "alb_dns_name" {
+  description = "Public DNS name of the ALB — use as the API base URL"
+  value       = aws_lb.this.dns_name
 }
 
 output "ecr_repository_url" {

@@ -1,6 +1,6 @@
 output "api_url" {
-  description = "API Gateway invoke URL"
-  value       = module.api_gateway.invoke_url
+  description = "ALB public DNS name — API base URL"
+  value       = "http://${module.ecs.alb_dns_name}"
 }
 
 output "cluster_name" {

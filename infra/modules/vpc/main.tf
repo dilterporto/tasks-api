@@ -109,10 +109,17 @@ resource "aws_route_table_association" "private" {
   route_table_id = aws_route_table.private.id
 }
 
-resource "aws_security_group" "api_gateway" {
-  name        = "${var.name}-apigw-sg"
-  description = "Security group for API Gateway VPC Link"
+resource "aws_security_group" "alb" {
+  name        = "${var.name}-alb-sg"
+  description = "Security group for ALB"
   vpc_id      = aws_vpc.this.id
+
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 
   egress {
     from_port   = 0
@@ -122,7 +129,7 @@ resource "aws_security_group" "api_gateway" {
   }
 
   tags = {
-    Name        = "${var.name}-apigw-sg"
+    Name        = "${var.name}-alb-sg"
     Environment = var.environment
   }
 }
@@ -136,7 +143,7 @@ resource "aws_security_group" "ecs" {
     from_port       = var.container_port
     to_port         = var.container_port
     protocol        = "tcp"
-    security_groups = [aws_security_group.api_gateway.id]
+    security_groups = [aws_security_group.alb.id]
   }
 
   egress {
@@ -154,7 +161,7 @@ resource "aws_security_group" "ecs" {
 
 resource "aws_security_group" "rds" {
   name        = "${var.name}-rds-sg"
-  description = "Security group for RDS — allows inbound from ECS only"
+  description = "Security group for RDS - allows inbound from ECS only"
   vpc_id      = aws_vpc.this.id
 
   ingress {
