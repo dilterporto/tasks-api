@@ -91,8 +91,14 @@ jobs:
         run: |
           CLUSTER=$(terraform output -raw cluster_name)
           TASK_DEF=$(terraform output -raw migrations_task_definition_family)
-          SUBNETS=$(terraform output -json private_subnet_ids | jq -r 'join(",")')
-          SG=$(terraform output -raw ecs_security_group_id)
+          SUBNETS=$(aws ec2 describe-subnets \
+            --filters "Name=tag:Name,Values=tasks-api-private-*" \
+            --query "Subnets[*].SubnetId" \
+            --output json | jq -r 'join(",")')
+          SG=$(aws ec2 describe-security-groups \
+            --filters "Name=group-name,Values=tasks-api-ecs-sg" \
+            --query "SecurityGroups[0].GroupId" \
+            --output text)
 
           TASK_ARN=$(aws ecs run-task \
             --cluster $CLUSTER \
