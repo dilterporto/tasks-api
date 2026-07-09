@@ -17,3 +17,8 @@ output "db_secret_arn" {
   description = "Secrets Manager ARN for DB credentials"
   value       = module.rds.secret_arn
 }
+
+output "ecr_repository_url" {
+  description = "ECR repository URL for pushing images"
+  value       = module.ecs.ecr_repository_url
+}
