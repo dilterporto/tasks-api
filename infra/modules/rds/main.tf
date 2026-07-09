@@ -70,7 +70,6 @@ resource "aws_secretsmanager_secret_version" "db_credentials" {
     port             = aws_db_instance.this.port
     dbname           = var.db_name
     connectionString = "Host=${aws_db_instance.this.address};Port=${aws_db_instance.this.port};Database=${var.db_name};Username=${var.db_username};Password=${random_password.db.result}"
-    jdbcUrl          = "jdbc:postgresql://${aws_db_instance.this.address}:${aws_db_instance.this.port}/${var.db_name}"
   })
 
   depends_on = [aws_db_instance.this]
