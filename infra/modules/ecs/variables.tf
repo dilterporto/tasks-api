@@ -43,6 +43,12 @@ variable "container_image" {
   type        = string
 }
 
+variable "migrations_image" {
+  description = "Docker image URI for the Flyway migrations task (ECR registry/repo:tag)"
+  type        = string
+  default     = "flyway/flyway:latest"
+}
+
 variable "container_port" {
   description = "Port the container listens on"
   type        = number

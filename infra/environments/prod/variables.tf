@@ -61,3 +61,9 @@ variable "redis_endpoint" {
   type        = string
   default     = ""
 }
+
+variable "migrations_image" {
+  description = "Docker image URI for the Flyway migrations ECS task"
+  type        = string
+  default     = "flyway/flyway:latest"
+}
