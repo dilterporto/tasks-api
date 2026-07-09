@@ -37,35 +37,99 @@ jobs:
         env:
           TF_VAR_aws_region: ${{ secrets.AWS_REGION }}
           TF_VAR_container_image: placeholder:latest
+          TF_VAR_migrations_image: placeholder:latest
         run: terraform init
 
-      - name: Terraform Apply (bootstrap ECR)
+      - name: Terraform Apply (bootstrap ECRs)
         working-directory: infra/environments/prod
         env:
           TF_VAR_aws_region: ${{ secrets.AWS_REGION }}
           TF_VAR_container_image: placeholder:latest
-        run: terraform apply -target=module.ecs.aws_ecr_repository.this -auto-approve
+          TF_VAR_migrations_image: placeholder:latest
+        run: |
+          terraform apply \
+            -target=module.ecs.aws_ecr_repository.this \
+            -target=module.ecs.aws_ecr_repository.migrations \
+            -auto-approve
 
-      - name: Get ECR repository URL
-        id: ecr-url
+      - name: Get ECR URLs
+        id: ecr
         working-directory: infra/environments/prod
-        run: echo "url=$(terraform output -raw ecr_repository_url)" >> $GITHUB_OUTPUT
+        run: |
+          echo "app_url=$(terraform output -raw ecr_repository_url)" >> $GITHUB_OUTPUT
+          echo "migrations_url=$(terraform output -raw migrations_ecr_repository_url)" >> $GITHUB_OUTPUT
 
       - name: Login to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Build and push Docker image
+      - name: Build and push migrations image
         env:
-          ECR_REPOSITORY_URL: ${{ steps.ecr-url.outputs.url }}
+          MIGRATIONS_ECR_URL: ${{ steps.ecr.outputs.migrations_url }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker build -t $ECR_REPOSITORY_URL:$IMAGE_TAG -t $ECR_REPOSITORY_URL:latest .
-          docker push $ECR_REPOSITORY_URL:$IMAGE_TAG
-          docker push $ECR_REPOSITORY_URL:latest
+          docker build -f Dockerfile.migrations \
+            -t $MIGRATIONS_ECR_URL:$IMAGE_TAG \
+            -t $MIGRATIONS_ECR_URL:latest .
+          docker push $MIGRATIONS_ECR_URL:$IMAGE_TAG
+          docker push $MIGRATIONS_ECR_URL:latest
+
+      - name: Terraform Apply (migrations task definition)
+        working-directory: infra/environments/prod
+        env:
+          TF_VAR_aws_region: ${{ secrets.AWS_REGION }}
+          TF_VAR_container_image: placeholder:latest
+          TF_VAR_migrations_image: ${{ steps.ecr.outputs.migrations_url }}:${{ github.sha }}
+        run: |
+          terraform apply \
+            -target=module.ecs.aws_ecs_task_definition.migrations \
+            -auto-approve
+
+      - name: Run Flyway migrations
+        working-directory: infra/environments/prod
+        env:
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
+        run: |
+          CLUSTER=$(terraform output -raw cluster_name)
+          TASK_DEF=$(terraform output -raw migrations_task_definition_family)
+          SUBNETS=$(terraform output -json private_subnet_ids | jq -r 'join(",")')
+          SG=$(terraform output -raw ecs_security_group_id)
+
+          TASK_ARN=$(aws ecs run-task \
+            --cluster $CLUSTER \
+            --task-definition $TASK_DEF \
+            --launch-type FARGATE \
+            --network-configuration "awsvpcConfiguration={subnets=[$SUBNETS],securityGroups=[$SG],assignPublicIp=DISABLED}" \
+            --query "tasks[0].taskArn" \
+            --output text)
+
+          echo "Migration task: $TASK_ARN"
+          aws ecs wait tasks-stopped --cluster $CLUSTER --tasks $TASK_ARN
+
+          EXIT_CODE=$(aws ecs describe-tasks \
+            --cluster $CLUSTER \
+            --tasks $TASK_ARN \
+            --query "tasks[0].containers[0].exitCode" \
+            --output text)
+
+          if [ "$EXIT_CODE" != "0" ]; then
+            echo "Migration failed with exit code $EXIT_CODE"
+            exit 1
+          fi
+          echo "Migrations applied successfully"
+
+      - name: Build and push app image
+        env:
+          ECR_URL: ${{ steps.ecr.outputs.app_url }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $ECR_URL:$IMAGE_TAG -t $ECR_URL:latest .
+          docker push $ECR_URL:$IMAGE_TAG
+          docker push $ECR_URL:latest
 
       - name: Terraform Apply (full deploy)
         working-directory: infra/environments/prod
         env:
           TF_VAR_aws_region: ${{ secrets.AWS_REGION }}
-          TF_VAR_container_image: ${{ steps.ecr-url.outputs.url }}:${{ github.sha }}
+          TF_VAR_container_image: ${{ steps.ecr.outputs.app_url }}:${{ github.sha }}
+          TF_VAR_migrations_image: ${{ steps.ecr.outputs.migrations_url }}:${{ github.sha }}
         run: terraform apply -auto-approve

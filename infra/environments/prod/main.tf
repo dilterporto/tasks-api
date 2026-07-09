@@ -50,6 +50,7 @@ module "ecs" {
   alb_security_group_id = module.vpc.alb_security_group_id
   security_group_id     = module.vpc.ecs_security_group_id
   container_image       = var.container_image
+  migrations_image      = var.migrations_image
   container_port        = var.container_port
   task_cpu              = var.task_cpu
   task_memory           = var.task_memory

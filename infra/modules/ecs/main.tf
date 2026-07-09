@@ -9,6 +9,56 @@ resource "aws_ecr_repository" "this" {
   tags = { Environment = var.environment }
 }
 
+resource "aws_ecr_repository" "migrations" {
+  name                 = "${var.name}-migrations"
+  image_tag_mutability = "MUTABLE"
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+
+  tags = { Environment = var.environment }
+}
+
+resource "aws_cloudwatch_log_group" "migrations" {
+  name              = "/ecs/${var.name}-migrations"
+  retention_in_days = var.log_retention_days
+
+  tags = { Environment = var.environment }
+}
+
+resource "aws_ecs_task_definition" "migrations" {
+  family                   = "${var.name}-migrations"
+  network_mode             = "awsvpc"
+  requires_compatibilities = ["FARGATE"]
+  cpu                      = 256
+  memory                   = 512
+  execution_role_arn       = aws_iam_role.execution.arn
+
+  container_definitions = jsonencode([{
+    name      = "migrations"
+    image     = var.migrations_image
+    essential = true
+
+    secrets = [
+      { name = "FLYWAY_URL",      valueFrom = "${var.db_secret_arn}:jdbcUrl::" },
+      { name = "FLYWAY_USER",     valueFrom = "${var.db_secret_arn}:username::" },
+      { name = "FLYWAY_PASSWORD", valueFrom = "${var.db_secret_arn}:password::" }
+    ]
+
+    logConfiguration = {
+      logDriver = "awslogs"
+      options = {
+        "awslogs-group"         = aws_cloudwatch_log_group.migrations.name
+        "awslogs-region"        = var.aws_region
+        "awslogs-stream-prefix" = "flyway"
+      }
+    }
+  }])
+
+  tags = { Environment = var.environment }
+}
+
 resource "aws_cloudwatch_log_group" "this" {
   name              = "/ecs/${var.name}"
   retention_in_days = var.log_retention_days

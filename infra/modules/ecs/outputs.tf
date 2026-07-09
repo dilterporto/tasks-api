@@ -27,3 +27,13 @@ output "ecr_repository_url" {
   description = "ECR repository URL for pushing images"
   value       = aws_ecr_repository.this.repository_url
 }
+
+output "migrations_ecr_repository_url" {
+  description = "ECR repository URL for the Flyway migrations image"
+  value       = aws_ecr_repository.migrations.repository_url
+}
+
+output "migrations_task_definition_family" {
+  description = "ECS task definition family name for Flyway migrations"
+  value       = aws_ecs_task_definition.migrations.family
+}
