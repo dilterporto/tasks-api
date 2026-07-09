@@ -1,3 +1,8 @@
+moved {
+  from = aws_security_group.api_gateway
+  to   = aws_security_group.alb
+}
+
 data "aws_availability_zones" "available" {
   state = "available"
 }
