@@ -1,2 +1,6 @@
 FROM flyway/flyway:latest
 COPY db/sql /flyway/sql
+COPY db/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["migrate"]

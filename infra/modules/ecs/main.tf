@@ -41,7 +41,9 @@ resource "aws_ecs_task_definition" "migrations" {
     essential = true
 
     secrets = [
-      { name = "FLYWAY_URL",      valueFrom = "${var.db_secret_arn}:jdbcUrl::" },
+      { name = "FLYWAY_HOST",     valueFrom = "${var.db_secret_arn}:host::" },
+      { name = "FLYWAY_PORT",     valueFrom = "${var.db_secret_arn}:port::" },
+      { name = "FLYWAY_DB",       valueFrom = "${var.db_secret_arn}:dbname::" },
       { name = "FLYWAY_USER",     valueFrom = "${var.db_secret_arn}:username::" },
       { name = "FLYWAY_PASSWORD", valueFrom = "${var.db_secret_arn}:password::" }
     ]
