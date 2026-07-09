@@ -19,8 +19,18 @@ variable "vpc_id" {
 }
 
 variable "subnet_ids" {
-  description = "Private subnet IDs for ECS tasks and internal NLB"
+  description = "Private subnet IDs for ECS tasks"
   type        = list(string)
+}
+
+variable "alb_subnet_ids" {
+  description = "Public subnet IDs for the internet-facing ALB"
+  type        = list(string)
+}
+
+variable "alb_security_group_id" {
+  description = "Security group ID for the ALB"
+  type        = string
 }
 
 variable "security_group_id" {

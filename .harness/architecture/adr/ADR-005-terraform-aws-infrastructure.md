@@ -16,12 +16,13 @@ Use Terraform with a module-per-resource-group structure and two environments: `
 Target architecture:
 
 ```
-Internet → API Gateway (HTTP API)
-         → VPC Link → NLB (internal)
-         → ECS Fargate (Tasks.Api container)
+Internet → ALB (public subnets, port 80)
+         → ECS Fargate (Tasks.Api container, private subnets)
          → RDS PostgreSQL (private subnet)
          → ElastiCache Redis (private subnet)
 ```
+
+> **Note:** The original design included API Gateway HTTP API + VPC Link + internal NLB. This was replaced by an internet-facing ALB (issue #37) because the AWS account does not support NLB creation. The API Gateway layer may be reintroduced in a future ADR once NLB is enabled.
 
 - Secrets stored in AWS Secrets Manager, injected into the ECS task definition at runtime
 - Remote state in S3 + DynamoDB lock for `prod`

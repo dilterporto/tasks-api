@@ -94,9 +94,8 @@ Domain Events:
 See `ADR-005-terraform-aws-infrastructure.md` and issue #10.
 
 ```
-Internet → API Gateway (HTTP API)
-         → VPC Link → NLB (internal)
-         → ECS Fargate (Tasks.Api container)
+Internet → ALB (public subnets, port 80)
+         → ECS Fargate (Tasks.Api container, private subnets)
          → RDS PostgreSQL (private subnet)
          → ElastiCache Redis (private subnet)
 ```
@@ -110,3 +109,5 @@ Internet → API Gateway (HTTP API)
 | [ADR-003](adr/ADR-003-mapster-over-automapper.md) | Mapster replaces AutoMapper | Accepted |
 | [ADR-004](adr/ADR-004-trunk-based-development.md) | Trunk-based development | Accepted |
 | [ADR-005](adr/ADR-005-terraform-aws-infrastructure.md) | Terraform for AWS infrastructure | Proposed |
+| [ADR-006](adr/ADR-006-domain-event-projection-via-mediatr.md) | Domain event projection via MediatR INotificationHandler | Proposed |
+| [ADR-007](adr/ADR-007-opentelemetry-instrumentation.md) | OpenTelemetry instrumentation (traces, metrics, log correlation) | Proposed |

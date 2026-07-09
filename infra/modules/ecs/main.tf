@@ -67,14 +67,15 @@ resource "aws_iam_role" "task" {
   tags = { Environment = var.environment }
 }
 
-resource "aws_lb" "internal" {
-  name               = "${var.name}-nlb"
-  internal           = true
-  load_balancer_type = "network"
-  subnets            = var.subnet_ids
+resource "aws_lb" "this" {
+  name               = "${var.name}-alb"
+  internal           = false
+  load_balancer_type = "application"
+  security_groups    = [var.alb_security_group_id]
+  subnets            = var.alb_subnet_ids
 
   tags = {
-    Name        = "${var.name}-nlb"
+    Name        = "${var.name}-alb"
     Environment = var.environment
   }
 }
@@ -82,22 +83,24 @@ resource "aws_lb" "internal" {
 resource "aws_lb_target_group" "ecs" {
   name        = "${var.name}-tg"
   port        = var.container_port
-  protocol    = "TCP"
+  protocol    = "HTTP"
   target_type = "ip"
   vpc_id      = var.vpc_id
 
   health_check {
-    protocol = "TCP"
+    protocol = "HTTP"
+    path     = "/health/live"
     interval = 30
+    matcher  = "200"
   }
 
   tags = { Environment = var.environment }
 }
 
 resource "aws_lb_listener" "ecs" {
-  load_balancer_arn = aws_lb.internal.arn
-  port              = var.container_port
-  protocol          = "TCP"
+  load_balancer_arn = aws_lb.this.arn
+  port              = 80
+  protocol          = "HTTP"
 
   default_action {
     type             = "forward"
@@ -174,7 +177,7 @@ resource "aws_ecs_service" "this" {
 
   health_check_grace_period_seconds = 60
 
-  depends_on = [aws_lb_listener.ecs]
+  depends_on = [aws_lb_listener.ecs, aws_lb.this]
 
   tags = { Environment = var.environment }
 }
