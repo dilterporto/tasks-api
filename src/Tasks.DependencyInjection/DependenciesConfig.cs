@@ -11,11 +11,13 @@ public static class DependenciesConfig
     services.ConfigurePersistence(configuration);
 
     var postgresConnection = configuration.GetConnectionString("DefaultConnection")!;
-    var redisConnection = configuration.GetSection("Redis:Server").Value!;
+    var redisConnection = configuration.GetSection("Redis:Server").Value;
 
-    services.AddHealthChecks()
+    var healthChecks = services.AddHealthChecks()
       .AddNpgSql(postgresConnection, name: "postgresql-events", tags: ["readiness"])
-      .AddNpgSql(postgresConnection, name: "postgresql-projections", tags: ["readiness"])
-      .AddRedis(redisConnection, name: "redis", tags: ["readiness"]);
+      .AddNpgSql(postgresConnection, name: "postgresql-projections", tags: ["readiness"]);
+
+    if (!string.IsNullOrEmpty(redisConnection))
+      healthChecks.AddRedis(redisConnection, name: "redis", tags: ["readiness"]);
   }
 }
