@@ -53,10 +53,10 @@ builder.Services.AddScoped<MapsterMapper.IMapper, ServiceMapper>();
 
 builder.Services.AddSerilog();
 
-var redisServer = configuration.GetSection("Redis:Server").Value;
-if (!string.IsNullOrEmpty(redisServer))
+var redisServer = configuration.GetSection("Redis:Server");
+if (redisServer.Exists())
 {
-  builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(redisServer));
+  builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(redisServer.Value!));
   builder.Services.AddScoped<IDatabase>(o => o.GetRequiredService<IConnectionMultiplexer>().GetDatabase());
   builder.Services.AddScoped<ICacheManager, CacheManager>();
 }
