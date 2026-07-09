@@ -2,7 +2,7 @@
 
 **Issue:** #35  
 **Author:** @dilterporto  
-**Status:** Draft  
+**Status:** Ready  
 **Agent:** infra-engineer  
 
 ---
