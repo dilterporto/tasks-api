@@ -1,6 +1,7 @@
 resource "aws_ecr_repository" "this" {
   name                 = var.name
   image_tag_mutability = "MUTABLE"
+  force_delete         = true
 
   image_scanning_configuration {
     scan_on_push = true
@@ -12,6 +13,7 @@ resource "aws_ecr_repository" "this" {
 resource "aws_ecr_repository" "migrations" {
   name                 = "${var.name}-migrations"
   image_tag_mutability = "MUTABLE"
+  force_delete         = true
 
   image_scanning_configuration {
     scan_on_push = true
