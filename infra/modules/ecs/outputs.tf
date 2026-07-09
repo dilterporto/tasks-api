@@ -22,3 +22,8 @@ output "nlb_listener_arn" {
   description = "Internal NLB listener ARN — consumed by the api-gateway module integration"
   value       = aws_lb_listener.ecs.arn
 }
+
+output "ecr_repository_url" {
+  description = "ECR repository URL for pushing images"
+  value       = aws_ecr_repository.this.repository_url
+}
