@@ -22,7 +22,6 @@ var configuration = builder.Configuration;
 
 Log.Logger = new LoggerConfiguration()
   .WriteTo.Console()
-  .WriteTo.Seq(configuration.GetSection("Seq:ServerUrl").Value!)
   .CreateLogger();
 
 // Add services to the container.
