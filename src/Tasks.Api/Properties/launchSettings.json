@@ -17,7 +17,6 @@
         "ASPNETCORE_ENVIRONMENT": "Development",
         "ASPNETCORE_URLS": "http://[::]:5006",
         "ConnectionStrings__DefaultConnection": "Host=localhost;Port=5432;Database=localdefaultdb;Username=appuser;Password=password123",
-        "Seq__ServerUrl": "http://localhost:5341",
         "Redis__Server": "localhost:6379"
       }
     },

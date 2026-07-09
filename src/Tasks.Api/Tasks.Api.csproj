@@ -15,7 +15,6 @@
       <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" />
       <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
       <PackageReference Include="Serilog.AspNetCore" />
-      <PackageReference Include="Serilog.Sinks.Seq" />
       <PackageReference Include="Swashbuckle.AspNetCore" />
     </ItemGroup>
 
