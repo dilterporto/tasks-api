@@ -109,6 +109,22 @@ Branches should live no longer than 1–2 days. If a feature takes longer, use a
 2. Pass CI (build + tests) before merge
 3. Use squash merge — one commit per issue on `main`
 
+**Commit convention (within a branch):**
+- One commit per plan task — each completed task produces exactly one commit before moving to the next
+- Commit message format: `<type>(task-N): <summary>` followed by a body listing what was done
+- The body must reference the task and the ACs it covers
+
+Example for a multi-task branch:
+```
+fix(task-1): make ICacheManager.ContainsKey async
+
+- Changed ContainsKey signature from bool to Task<bool> in ICacheManager
+- Updated CacheManager to use KeyExistsAsync instead of synchronous StringGet
+- Updated NullCacheManager to match new interface
+- Updated CacheValidationPipelineBehavior call site
+Covers: AC-5, AC-6 — spec: .harness/specs/features/54-resilient-cache-fallback-upcoming.md
+```
+
 PR body template (`.github/pull_request_template.md` pre-fills this):
 ```
 ## Summary
