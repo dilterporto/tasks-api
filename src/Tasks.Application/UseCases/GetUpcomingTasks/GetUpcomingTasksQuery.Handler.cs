@@ -9,37 +9,41 @@ using Tasks.Domain.Projections;
 
 namespace Tasks.Application.UseCases.GetUpcomingTasks;
 
-public class GetUpcomingTasksQueryHandler(IProjectionsReader<TaskProjection> projectionsReader, IMapper mapper, ICacheManager cacheManager, ILogger<GetUpcomingTasksQueryHandler> logger) 
+public class GetUpcomingTasksQueryHandler(
+  IProjectionsReader<TaskProjection> projectionsReader,
+  IMapper mapper,
+  ICacheManager cacheManager,
+  ILogger<GetUpcomingTasksQueryHandler> logger)
   : IRequestHandler<GetUpcomingTasksQuery, Result<UpcomingTasksResponse>>
 {
-  public async Task<Result<UpcomingTasksResponse>> Handle(GetUpcomingTasksQuery request, CancellationToken cancellationToken) =>
-    await TryGetUpcomingTasks()
-      .ToResult("An error occurred while getting upcoming tasks.")
-      .Map(upcomingTasks =>
-      {
-        if (IsCacheEmpty().IsSuccess)
-          SetInCache(upcomingTasks);
-        return upcomingTasks;
-      })
-      .Finally(upcomingTasksResult => GroupByDue(upcomingTasksResult.Value));
-
-  private async Task<Maybe<List<TaskResponseWithDue>>> TryGetUpcomingTasks() =>
-    cacheManager.ContainsKey(Constants.UpcomingTasksKey) ? 
-      await GetUpcomingTasksFromCache() : await GetUpcomingTasksFromProjections();
-  
-  private void SetInCache(IEnumerable<TaskResponseWithDue> upcomingTasks)
+  public async Task<Result<UpcomingTasksResponse>> Handle(GetUpcomingTasksQuery request, CancellationToken cancellationToken)
   {
-    logger.LogInformation("[Application] Setting upcoming tasks in cache.");
-    cacheManager.Set(Constants.UpcomingTasksKey, upcomingTasks);
+    var (tasks, fromCache) = await TryGetUpcomingTasks();
+
+    if (!fromCache)
+    {
+      logger.LogInformation("[Application] Setting upcoming tasks in cache.");
+      await cacheManager.Set(Constants.UpcomingTasksKey, tasks);
+    }
+
+    return GroupByDue(tasks);
   }
 
-  private Result IsCacheEmpty() => 
-    cacheManager.ContainsKey(Constants.UpcomingTasksKey) ? Result.Failure("Cache does not exist.") : Result.Success();
+  private async Task<(List<TaskResponseWithDue> Tasks, bool FromCache)> TryGetUpcomingTasks()
+  {
+    if (await cacheManager.ContainsKey(Constants.UpcomingTasksKey))
+    {
+      var cached = await cacheManager.Get<IEnumerable<TaskResponseWithDue>>(Constants.UpcomingTasksKey);
+      if (cached.HasValue)
+        return (cached.Value.ToList(), true);
 
-  private async Task<Maybe<List<TaskResponseWithDue>>> GetUpcomingTasksFromCache() =>
-    (await cacheManager.Get<IEnumerable<TaskResponseWithDue>>(Constants.UpcomingTasksKey)).Value.ToList();
-  
-  private async Task<Maybe<List<TaskResponseWithDue>>> GetUpcomingTasksFromProjections() =>
+      logger.LogWarning("[Application] Cache key present but value unavailable, falling back to projections.");
+    }
+
+    return (await GetUpcomingTasksFromProjections(), false);
+  }
+
+  private async Task<List<TaskResponseWithDue>> GetUpcomingTasksFromProjections() =>
     (await projectionsReader.GetAllAsync())
     .Where(x => x.DueAt.Date >= DateTime.UtcNow.Date)
     .ToList()
